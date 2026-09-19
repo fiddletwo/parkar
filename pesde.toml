@@ -36,6 +36,7 @@ planck = { wally = "yetanotherclown/planck", version = "^0.3.0-rc.2" }
 planck-jabby = { wally = "yetanotherclown/planck-jabby", version = "^0.3.0-rc.2" }
 planck-runservice = { wally = "yetanotherclown/planck-runservice", version = "^0.3.0-rc.2" }
 vide = { wally = "centau/vide", version = "^0.4.1" }
+replecs = { wally = "pepeeltoro41/replecs", version = "^0.4.0-rc.3" }
 
 [overrides]
 "jabby>vide" = "vide"
