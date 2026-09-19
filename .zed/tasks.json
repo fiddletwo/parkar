@@ -1,0 +1,10 @@
+[
+    {
+        "label": "Serve",
+        "command": "rojo serve"
+    },
+    {
+        "label": "Autogenerate sourcemap",
+        "command": "rojo sourcemap --watch --include-non-scripts --output sourcemap.json"
+    }
+]
