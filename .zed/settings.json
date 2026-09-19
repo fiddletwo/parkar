@@ -1,0 +1,36 @@
+{
+    "lsp": {
+        "luau-lsp": {
+            "settings": {
+                "roblox": {
+                    "security-level": "roblox_script"
+                },
+                "fflags": {
+                    "enable_new_solver": true
+                },
+                "luau-lsp": {
+                    "ignoreGlobs": [
+                        "**/_Index/**",
+                        "**/.pesde/**",
+                    ],
+                    "completion": {
+                        "imports": {
+                            "ignoreGlobs": ["**/_Index/**", "**/.pesde/**"],
+                        },
+                    },
+                }
+            }
+        }
+    },
+    "languages": {
+        "Luau": {
+            "format_on_save": "on",
+            "formatter": {
+                "external": {
+                    "command": "stylua",
+                    "arguments": ["--respect-ignores", "-"],
+                },
+            },
+        }
+    }
+}

@@ -7,7 +7,7 @@
                 "$path": "roblox_packages"
             },
             "shared": {
-                "$path": "shared"
+                "$path": "src/shared"
             }
         },
         "ServerScriptService": {
