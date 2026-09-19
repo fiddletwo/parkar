@@ -1,0 +1,26 @@
+{
+    "name": "parkar",
+    "tree": {
+        "$className": "DataModel",
+        "ReplicatedStorage": {
+            "packages": {
+                "$path": "roblox_packages"
+            },
+            "shared": {
+                "$path": "shared"
+            }
+        },
+        "ServerScriptService": {
+            "server": {
+                "$path": "src/server"
+            }
+        },
+        "StarterPlayer": {
+            "StarterPlayerScripts": {
+                "client": {
+                    "$path": "src/client"
+                }
+            }
+        }
+    }
+}
