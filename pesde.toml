@@ -18,8 +18,8 @@ default = "https://github.com/pesde-pkg/index"
 default = "https://github.com/UpliftGames/wally-index"
 
 [scripts]
-roblox_sync_config_generator = ".pesde/scripts/roblox_sync_config_generator.luau"
-sourcemap_generator = ".pesde/scripts/sourcemap_generator.luau"
+roblox_sync_config_generator = ".pesde/scripts_rojo/roblox_sync_config_generator.luau"
+sourcemap_generator = ".pesde/scripts_rojo/sourcemap_generator.luau"
 
 [dev_dependencies]
 scripts_rojo = { name = "pesde/scripts_rojo", version = "^0.2.0", target = "lune" }
@@ -27,3 +27,10 @@ scripts_rojo = { name = "pesde/scripts_rojo", version = "^0.2.0", target = "lune
 [engines]
 pesde = "^0.7.0"
 lune = "^0.10.2"
+
+[dependencies]
+jecs = { wally = "ukendio/jecs", version = "^0.11.0" }
+jecs-utils = { wally = "pepeeltoro41/jecs-utils", version = "^1.4.4" }
+planck = { wally = "yetanotherclown/planck", version = "^0.3.0-rc.2" }
+planck-jabby = { wally = "yetanotherclown/planck-jabby", version = "^0.3.0-rc.2" }
+planck-runservice = { wally = "yetanotherclown/planck-runservice", version = "^0.3.0-rc.2" }
