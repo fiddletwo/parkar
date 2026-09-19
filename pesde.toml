@@ -29,8 +29,15 @@ pesde = "^0.7.0"
 lune = "^0.10.2"
 
 [dependencies]
+jabby = { wally = "alicesaidhi/jabby", version = "^0.6.2-nullcolumn.0" }
 jecs = { wally = "ukendio/jecs", version = "^0.11.0" }
 jecs-utils = { wally = "pepeeltoro41/jecs-utils", version = "^1.4.4" }
 planck = { wally = "yetanotherclown/planck", version = "^0.3.0-rc.2" }
 planck-jabby = { wally = "yetanotherclown/planck-jabby", version = "^0.3.0-rc.2" }
 planck-runservice = { wally = "yetanotherclown/planck-runservice", version = "^0.3.0-rc.2" }
+vide = { wally = "centau/vide", version = "^0.4.1" }
+
+[overrides]
+"jabby>vide" = "vide"
+"planck-jabby>jabby" = "jabby"
+"replecs>jecs,jecs-spring>jecs" = "jecs"
