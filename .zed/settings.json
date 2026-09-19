@@ -3,6 +3,7 @@
         "luau-lsp": {
             "settings": {
                 "roblox": {
+                    "enabled": true,
                     "security-level": "roblox_script"
                 },
                 "fflags": {
