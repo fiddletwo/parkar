@@ -1,0 +1,19 @@
+function RequestInitialPackets {
+    Yield: Coroutine,
+    Data: (),
+    Return: (buffer?, unknown),
+}
+
+event SendReliable {
+    From: Server,
+    Type: Reliable,
+    Call: Polling,
+    Data: (buffer, unknown),
+}
+
+event SendUnreliable {
+    From: Server,
+    Type: Unreliable,
+    Call: Polling,
+    Data: (buffer, unknown),
+}

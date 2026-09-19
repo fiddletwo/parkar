@@ -1,0 +1,5 @@
+option ClientOutput = "../client/network.luau"
+option ServerOutput = "../server/network.luau"
+option Casing = Camel
+
+import "./replecs.blink" as EntityReplication
