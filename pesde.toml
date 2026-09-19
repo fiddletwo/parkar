@@ -29,7 +29,7 @@ pesde = "^0.7.0"
 lune = "^0.10.2"
 
 [dependencies]
-jabby = { wally = "alicesaidhi/jabby", version = "^0.6.2-nullcolumn.0" }
+jabby = { wally = "alicesaidhi/jabby", version = "^0.6.1" }
 jecs = { wally = "ukendio/jecs", version = "^0.11.0" }
 jecs-utils = { wally = "pepeeltoro41/jecs-utils", version = "^1.4.4" }
 planck = { wally = "yetanotherclown/planck", version = "^0.3.0-rc.2" }
