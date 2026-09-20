@@ -16,7 +16,10 @@ schedule(world,
 
     sharedSystems.players.initialize,
     sharedSystems.players.added,
-    sharedSystems.players.removed
+    sharedSystems.players.removed,
+
+    systems.camera.player,
+    systems.camera.update
 )
 -- stylua: ignore end
 requestPackets()
