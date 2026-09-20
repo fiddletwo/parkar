@@ -17,7 +17,9 @@ schedule(world,
 
     sharedSystems.players.initialize,
     sharedSystems.players.added,
-    sharedSystems.players.removed
+    sharedSystems.players.removed,
+
+    systems.players.car
 )
 -- stylua: ignore end
 sendPackets()
