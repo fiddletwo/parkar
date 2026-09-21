@@ -1,15 +1,16 @@
+const presets = require "../../presets/car"
 const partUtil = require "../part_util"
 
 export type Car = Model & {
     Hitbox: Part,
 }
 
-const function createCar(): Car
+const function createCar(preset: presets.CarPreset): Car
     const model = Instance.new "Model"
 
     const hitbox = Instance.new "Part"
     hitbox.Name = "Hitbox"
-    hitbox.Size = Vector3.new(4, 2, 6)
+    hitbox.Size = preset.hitbox
     hitbox.CastShadow = false
     hitbox.EnableFluidForces = false
     hitbox.Material = Enum.Material.SmoothPlastic

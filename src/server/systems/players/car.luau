@@ -4,6 +4,7 @@ const jecs = require "@game/ReplicatedStorage/packages/jecs"
 const planck_runservice = require "@game/ReplicatedStorage/packages/planck-runservice"
 const replicator = require "../../replicator"
 const ct = require "@game/ReplicatedStorage/shared/components"
+const presets = require "@game/ReplicatedStorage/shared/presets/car"
 const carModel = require "@game/ReplicatedStorage/shared/utils/car/model"
 
 const pair = jecs.pair
@@ -21,7 +22,7 @@ const function system(world: jecs.World)
             replicator:set_relation(id, ct.Car)
 
             task.defer(function()
-                const model = carModel.create()
+                const model = carModel.create(presets.default)
                 model.Name = player.Name
                 model.Parent = Workspace.Cars
 
@@ -31,9 +32,11 @@ const function system(world: jecs.World)
 
                 world:add(car, pair(ct.CarOf, id))
                 world:set(car, ct.Renderable, model)
+                world:set(car, ct.CarPreset, "default")
 
                 replicator:set_relation(car, ct.CarOf)
                 replicator:set_reliable(car, ct.Renderable)
+                replicator:set_reliable(car, ct.CarPreset)
             end)
         end
     end

@@ -1,5 +1,6 @@
 const jecs_utils = require "@game/ReplicatedStorage/packages/jecs-utils"
 const replecs = require "@game/ReplicatedStorage/packages/replecs"
+const _presets = require "./presets/car"
 const jecs = require "@game/ReplicatedStorage/packages/jecs"
 const ecs = require "./utils/ecs"
 const world = require "./world"
@@ -14,6 +15,7 @@ const components = {
     -- Player
     Player = world:component<<Player>>(),
     Car = world:entity(),
+    CarPreset = world:component<<_presets.PresetName>>(),
     CarOf = world:entity(),
 
     -- Instances

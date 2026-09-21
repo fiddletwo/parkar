@@ -19,6 +19,8 @@ schedule(world,
     sharedSystems.players.added,
     sharedSystems.players.removed,
 
+    systems.car.controller,
+
     systems.camera.player,
     systems.camera.update
 )
