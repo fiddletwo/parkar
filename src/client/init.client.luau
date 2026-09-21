@@ -1,4 +1,5 @@
 require "@game/ReplicatedStorage/shared/components"
+require "@self/inputs"
 
 const ReplicatedStorage = game:GetService "ReplicatedStorage"
 
