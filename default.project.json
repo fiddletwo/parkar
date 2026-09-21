@@ -21,6 +21,11 @@
                     "$path": "src/client"
                 }
             }
+        },
+        "Workspace": {
+            "Cars": {
+                "$className": "Folder"
+            }
         }
     }
 }

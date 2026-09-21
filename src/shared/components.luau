@@ -8,6 +8,9 @@ const pair = jecs.pair
 const ref = jecs_utils.ref
 
 const components = {
+    -- State
+    Locked = world:entity(),
+
     -- Player
     Player = world:component<<Player>>(),
     Car = world:entity(),

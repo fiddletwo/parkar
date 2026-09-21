@@ -23,7 +23,7 @@ const function system(world: jecs.World)
             task.defer(function()
                 const model = carModel.create()
                 model.Name = player.Name
-                model.Parent = Workspace
+                model.Parent = Workspace.Cars
 
                 model.Hitbox:SetNetworkOwner(player)
 
@@ -33,6 +33,7 @@ const function system(world: jecs.World)
                 world:set(car, ct.Renderable, model)
 
                 replicator:set_relation(car, ct.CarOf)
+                replicator:set_reliable(car, ct.Renderable)
             end)
         end
     end
