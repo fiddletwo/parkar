@@ -23,6 +23,9 @@
             }
         },
         "Workspace": {
+            "$properties": {
+                "UseFixedSimulation": "Enabled"
+            },
             "Cars": {
                 "$className": "Folder"
             }
