@@ -44,7 +44,7 @@ const function schedule(world: jecs.World, ...: ModuleScript)
 
     jabby.register {
         applet = jabby.applets.world,
-        name = `World - {IS_CLIENT and "Client" or "server"}`,
+        name = `World - {IS_CLIENT and "Client" or "Server"}`,
         configuration = {
             world = world,
             get_entity_from_part = getEntityFromPart,
