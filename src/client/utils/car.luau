@@ -1,4 +1,5 @@
 const Players = game:GetService "Players"
+const Workspace = game:GetService "Workspace"
 
 const jecs = require "@game/ReplicatedStorage/packages/jecs"
 const jecs_utils = require "@game/ReplicatedStorage/packages/jecs-utils"
@@ -20,7 +21,19 @@ const function getLocalCarModel(id: jecs.Entity?): carModel.Car?
     return car and world:get(car, ct.Renderable) or nil
 end
 
+const function getRaycastParams(id: jecs.Entity): RaycastParams
+    local params = world:get(id, ct.RaycastParams)
+    if params then
+        return params
+    end
+
+    params = RaycastParams.new()
+    params.ExcludeInstances = { Workspace.Cars }
+    return params
+end
+
 return {
     get = getLocalCar,
     model = getLocalCarModel,
+    params = getRaycastParams,
 }

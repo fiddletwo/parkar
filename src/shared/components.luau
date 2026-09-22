@@ -14,16 +14,25 @@ const components = {
 
     -- Player
     Player = world:component<<Player>>(),
+
+    -- Car
     Car = world:entity(),
     CarPreset = world:component<<_presets.PresetName>>(),
     CarOf = world:entity(),
+    Wheel = world:entity(),
+    WheelSpring = world:component<<_presets.WheelSpring>>(),
 
     -- Instances
     Renderable = world:component<<Model>>(),
 
     -- Physics
     Transform = world:component<<CFrame>>(),
+    Position = world:component<<Vector3>>(),
     Orientation = world:component<<Vector3>>(),
+    Length = world:component<<number>>(),
+
+    -- Raycasts
+    RaycastParams = world:component<<RaycastParams>>(),
 
     -- Camera
     ActiveCamera = world:component<<jecs.Entity>>(),

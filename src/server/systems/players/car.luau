@@ -9,6 +9,7 @@ const carModel = require "@game/ReplicatedStorage/shared/utils/car/model"
 
 const pair = jecs.pair
 const Wildcard = jecs.Wildcard
+const ChildOf = jecs.ChildOf
 
 const function system(world: jecs.World)
     const needsCar = world:query(ct.Player):without(pair(ct.Car, Wildcard)):cached()
@@ -22,7 +23,9 @@ const function system(world: jecs.World)
             replicator:set_relation(id, ct.Car)
 
             task.defer(function()
-                const model = carModel.create(presets.default)
+                const preset = presets.default
+
+                const model = carModel.create(preset)
                 model.Name = player.Name
                 model.Parent = Workspace.Cars
 
@@ -37,6 +40,23 @@ const function system(world: jecs.World)
                 replicator:set_relation(car, ct.CarOf)
                 replicator:set_reliable(car, ct.Renderable)
                 replicator:set_reliable(car, ct.CarPreset)
+
+                for name, position in preset.wheels :: { [string]: Vector3 } do
+                    const wheel = world:entity()
+                    replicator:set_networked(wheel)
+
+                    world:add(wheel, ct.Wheel)
+                    world:add(wheel, pair(ChildOf, car))
+                    world:set(wheel, ct.WheelSpring, preset.spring)
+                    world:set(wheel, ct.Position, position)
+                    world:set(wheel, ct.Length, preset.spring.rest)
+
+                    replicator:set_reliable(wheel, ct.Wheel)
+                    replicator:set_relation(wheel, ChildOf)
+                    replicator:set_reliable(wheel, ct.WheelSpring)
+                    replicator:set_reliable(wheel, ct.Position)
+                    replicator:set_once(wheel, ct.Length)
+                end
             end)
         end
     end

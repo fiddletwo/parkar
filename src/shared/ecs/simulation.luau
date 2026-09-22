@@ -13,10 +13,21 @@ const pipelines = {
     [Enum.StepFrequency.Hz60] = Pipeline.new("Simulation60HzPipeline"):insert(phases.Simulation60Hz),
 }
 
+const dts = {
+    [Enum.StepFrequency.Hz60] = 1 / 60,
+}
+
 const function bindToSimulation(frequency: Enum.StepFrequency)
     return function(cb)
-        return RunService:BindToSimulation(cb, frequency)
+        return RunService:BindToSimulation(function(dt)
+            dts[frequency] = dt
+            cb()
+        end, frequency)
     end
+end
+
+const function getDeltaTime(_, frequency: Enum.StepFrequency): number
+    return dts[frequency]
 end
 
 const Plugin = {}
@@ -37,4 +48,5 @@ return {
     Plugin = Plugin,
     Phases = phases,
     Pipelines = pipelines,
+    getDeltaTime = getDeltaTime,
 }

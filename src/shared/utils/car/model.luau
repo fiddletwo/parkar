@@ -15,7 +15,7 @@ const function createCar(preset: presets.CarPreset): Car
     hitbox.EnableFluidForces = false
     hitbox.Material = Enum.Material.SmoothPlastic
     hitbox.Parent = model
-    partUtil.setBlockMass(hitbox, 500)
+    partUtil.setBlockMass(hitbox, 200)
 
     return model :: Car
 end
