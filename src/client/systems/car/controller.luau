@@ -3,6 +3,7 @@ const Workspace = game:GetService "Workspace"
 const jecs = require "@game/ReplicatedStorage/packages/jecs"
 const ct = require "@game/ReplicatedStorage/shared/components"
 const simulation = require "@game/ReplicatedStorage/shared/ecs/simulation"
+const force = require "@game/ReplicatedStorage/shared/utils/force"
 const gizmos = require "@game/ReplicatedStorage/shared/utils/gizmos"
 const carUtil = require "../../utils/car"
 
@@ -45,7 +46,7 @@ const function system(world: jecs.World)
             const dampingForce = spring.damping * velocity
 
             const netForce = ray.Normal * (stiffnessForce + dampingForce)
-            hitbox:ApplyImpulseAtPosition(netForce * dt, position)
+            force.add(id, hitbox, netForce, ray.Position)
 
             world:set(id, ct.Length, length)
         else

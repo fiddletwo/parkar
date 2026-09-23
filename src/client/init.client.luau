@@ -22,7 +22,9 @@ schedule(world,
     systems.car.controller,
 
     systems.camera.player,
-    systems.camera.update
+    systems.camera.update,
+
+    sharedSystems.cleanup_forces
 )
 -- stylua: ignore end
 requestPackets()

@@ -50,6 +50,12 @@ world:set(components.Player, replecs.CustomHandler, function(player)
     const id = ref(player)
     return id
 end)
+world:removed(components.Renderable, function(entity)
+    const renderable = world:get(entity, components.Renderable)
+    if renderable then
+        renderable:Destroy()
+    end
+end)
 world:add(components.CarOf, pair(jecs.OnDeleteTarget, jecs.Delete))
 
 return components
