@@ -16,6 +16,7 @@ const function createCar(preset: presets.CarPreset): Car
     hitbox.Material = Enum.Material.SmoothPlastic
     hitbox.Parent = model
     partUtil.setBlockMass(hitbox, 200)
+    partUtil.setElasticity(hitbox, 0.1)
 
     return model :: Car
 end
