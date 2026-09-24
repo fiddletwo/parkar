@@ -4,6 +4,7 @@ const Workspace = game:GetService "Workspace"
 const jecs = require "@game/ReplicatedStorage/packages/jecs"
 const jecs_utils = require "@game/ReplicatedStorage/packages/jecs-utils"
 const ct = require "@game/ReplicatedStorage/shared/components"
+const presets = require "@game/ReplicatedStorage/shared/presets/car"
 const carModel = require "@game/ReplicatedStorage/shared/utils/car/model"
 const world = require "@game/ReplicatedStorage/shared/world"
 
@@ -13,6 +14,10 @@ const function getLocalCar(): jecs.Entity?
     const player = ref(Players.LocalPlayer)
 
     return world:target(player, ct.Car) :: jecs.Entity?
+end
+
+const function getPreset(id: jecs.Entity): presets.CarPreset
+    return presets[world:get(id, ct.CarPreset) :: any]
 end
 
 const function getLocalCarModel(id: jecs.Entity?): carModel.Car?
@@ -34,6 +39,7 @@ end
 
 return {
     get = getLocalCar,
+    preset = getPreset,
     model = getLocalCarModel,
     params = getRaycastParams,
 }
