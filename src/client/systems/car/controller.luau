@@ -60,23 +60,34 @@ const function system(world: jecs.World)
     end
 
     if grounded then
-        const forward = transform.LookVector
-        const longVelocity = forward:Dot(hitbox.AssemblyLinearVelocity)
+        const com = hitbox.AssemblyCenterOfMass
+
+        const look = transform.LookVector
+        const longV = look:Dot(hitbox.AssemblyLinearVelocity)
+        const longVDir = math.sign(longV)
 
         const _, state = action(inputs.movement)
         const movement = state.input2D
+        const longInput = movement.Y
+        const longInputDir = math.sign(longInput)
 
-        const throttle = preset.acceleration.throttle:evaluate(math.abs(longVelocity))
-        force.add(car, hitbox, forward * throttle * math.sign(movement.Y), hitbox.Position, true)
+        const acceleration = preset.acceleration
 
-        if movement.Y == 0 and math.abs(longVelocity) > 0.25 then
-            force.add(
-                car,
-                hitbox,
-                forward * -math.sign(longVelocity) * preset.acceleration.coasting,
-                hitbox.Position,
-                true
-            )
+        -- for some reason if the vectorforce gets parented the force behaves odd, if it persists it doesn't
+        -- a cache might solve this
+        -- this might to apply to springs to so fix that
+        force.add(car, hitbox, Vector3.zero, com, true)
+
+        if longInput == 0 and math.abs(longV) > 0.25 then
+            force.add(car, hitbox, look * -longVDir * acceleration.coasting, com, true)
+        elseif longInput ~= 0 then
+            if longInputDir == longVDir or longVDir == 0 then
+                -- at the moment reverse speed is the same as forward speed, should change
+                const throttle = acceleration.throttle:evaluate(math.abs(longV))
+                force.add(car, hitbox, look * throttle * longInputDir, com, true)
+            else
+                force.add(car, hitbox, look * -longVDir * acceleration.braking, com, true)
+            end
         end
     end
 end
