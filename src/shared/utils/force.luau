@@ -26,7 +26,7 @@ const cache = InstanceCache.new<<ForceInstance>>(forceInstance :: ForceInstance,
 
 const function _createForce(part: BasePart, force: Vector3, position: Vector3): Force
     const forceInstance = cache:get()
-    forceInstance.WorldPosition = position
+    forceInstance.WorldCFrame = CFrame.new(position)
     forceInstance.Vector.Force = force
     forceInstance.Parent = part
 
@@ -48,7 +48,7 @@ const function addForce(id: any, part: BasePart, force: Vector3, position: Vecto
     const forceInfo = forceTable[part][id]
     if forceInfo then
         const forceInstance = forceInfo.instance
-        forceInstance.WorldPosition = position
+        forceInstance.WorldCFrame = CFrame.new(position)
         forceInstance.Vector.Force = force
         forceInfo.dirty = false
     else
