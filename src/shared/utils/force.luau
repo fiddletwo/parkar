@@ -27,8 +27,12 @@ const cache = InstanceCache.new<<ForceInstance>>(forceInstance :: ForceInstance,
 const function _createForce(part: BasePart, force: Vector3, position: Vector3): Force
     const forceInstance = cache:get()
     forceInstance.WorldCFrame = CFrame.new(position)
-    forceInstance.Vector.Force = force
+    forceInstance.Vector.Force = Vector3.zero
     forceInstance.Parent = part
+
+    task.defer(function()
+        forceInstance.Vector.Force = force
+    end)
 
     return {
         instance = forceInstance,
