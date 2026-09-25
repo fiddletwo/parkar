@@ -22,7 +22,7 @@ vectorForce.Attachment0 = forceInstance
 vectorForce.RelativeTo = Enum.ActuatorRelativeTo.World
 vectorForce.Parent = forceInstance
 
-const cache = InstanceCache.new<<ForceInstance>>(forceInstance :: ForceInstance, 2)
+const cache = InstanceCache.new<<ForceInstance>>(forceInstance :: ForceInstance, 20)
 
 const function _createForce(part: BasePart, force: Vector3, position: Vector3): Force
     const forceInstance = cache:get()
