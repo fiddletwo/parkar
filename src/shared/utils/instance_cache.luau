@@ -7,35 +7,38 @@ cacheFolder.Parent = Workspace
 const InstanceCache = {}
 InstanceCache.__index = InstanceCache
 
-export type InstanceCache = setmetatable<{ _instance: Instance, cache: { Instance } }, typeof(InstanceCache)>
+export type InstanceCache<T = Instance> = setmetatable<{ cache: { T }, _instance: T }, typeof(InstanceCache)>
 
-function InstanceCache.new(instance: Instance, initial: number): InstanceCache
-    assert(typeof(instance) == "Instance", "instance must be an Instance")
+function InstanceCache.new<T>(instance: T, initial: number): InstanceCache<T>
+    assert(typeof(instance) == "Instance", "Instance provided for cache is not an Instance")
 
     const self = {}
+    self.cache = {}
     self._instance = instance :: Instance
 
-    const cache = {}
-    for i = 0, initial, 1 do
+    for i = 1, initial, 1 do
         const clone = self._instance:Clone()
         clone.Parent = cacheFolder
-        cache[#cache + 1] = clone
+        self.cache[#self.cache + 1] = clone
     end
-    self.cache = cache
 
     return setmetatable(self, InstanceCache)
 end
 
-function InstanceCache:_create(): Instance
-    const clone = self._instance:Clone()
-    self.cache[#self.cache + 1] = clone
-    return clone :: Instance
+function InstanceCache:get<T>(): T
+    const cached = table.remove<<T>>(self.cache) or self._instance:Clone() :: T
+    return cached
 end
 
-function InstanceCache:get(): Instance
-    const cached = self.cache[#self.cache] or self:_create()
-    self.cache[#self.cache] = nil
-    return cached :: Instance
+function InstanceCache:done<T>(instance: T)
+    local inst = instance :: Instance
+
+    if inst.Parent == nil then
+        inst = self._instance:Clone() :: Instance
+    end
+
+    inst.Parent = cacheFolder
+    self.cache[#self.cache] = instance
 end
 
 return InstanceCache

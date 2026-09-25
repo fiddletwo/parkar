@@ -1,5 +1,9 @@
+const InstanceCache = require "./instance_cache"
+
+type ForceInstance = Attachment & { Vector: VectorForce }
+
 type Force = {
-    instance: Attachment & { Vector: VectorForce },
+    instance: ForceInstance,
     dirty: boolean,
 }
 
@@ -9,23 +13,25 @@ const forceTable: {
     },
 } = {}
 
--- implement a cache at some point
+const forceInstance = Instance.new "Attachment"
+forceInstance.Name = "Force"
+
+const vectorForce = Instance.new "VectorForce"
+vectorForce.Name = "Vector"
+vectorForce.Attachment0 = forceInstance
+vectorForce.RelativeTo = Enum.ActuatorRelativeTo.World
+vectorForce.Parent = forceInstance
+
+const cache = InstanceCache.new<<ForceInstance>>(forceInstance :: ForceInstance, 2)
+
 const function _createForce(part: BasePart, force: Vector3, position: Vector3): Force
-    const forceInstance = Instance.new "Attachment"
-    forceInstance.Name = "Force"
+    const forceInstance = cache:get()
     forceInstance.WorldPosition = position
-
-    const vectorForce = Instance.new "VectorForce"
-    vectorForce.Name = "Vector"
-    vectorForce.Attachment0 = forceInstance
-    vectorForce.RelativeTo = Enum.ActuatorRelativeTo.World
-    vectorForce.Force = force
-    vectorForce.Parent = forceInstance
-
+    forceInstance.Vector.Force = force
     forceInstance.Parent = part
 
     return {
-        instance = forceInstance :: any,
+        instance = forceInstance,
         dirty = false,
     }
 end
@@ -55,7 +61,7 @@ const function cleanupForces()
         -- part is destroyed
         if part.Parent == nil then
             for force, info in forces do
-                info.instance:Destroy()
+                cache:done(info.instance)
                 forceTable[part][force] = nil
             end
 
