@@ -1,4 +1,3 @@
-const gizmos = require "./gizmos"
 type Force = {
     instance: Attachment & { Vector: VectorForce },
     dirty: boolean,
@@ -45,7 +44,6 @@ const function addForce(id: any, part: BasePart, force: Vector3, position: Vecto
         const forceInstance = forceInfo.instance
         forceInstance.WorldPosition = position
         forceInstance.Vector.Force = force
-        gizmos:DrawRay(position, force * 0.0005)
         forceInfo.dirty = false
     else
         forceTable[part][id] = _createForce(part, force, position)
@@ -65,8 +63,7 @@ const function cleanupForces()
         else
             for force, info in forces do
                 if info.dirty then
-                    info.instance:Destroy()
-                    forceTable[part][force] = nil
+                    info.instance.Vector.Force = Vector3.zero
                 else
                     info.dirty = true
                 end

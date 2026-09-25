@@ -76,7 +76,8 @@ const function system(world: jecs.World)
         -- for some reason if the vectorforce gets parented the force behaves odd, if it persists it doesn't
         -- a cache might solve this
         -- this might to apply to springs to so fix that
-        force.add(car, hitbox, Vector3.zero, com, true)
+        -- fix for now is to set force to zero instead of destroying it when dirty
+        -- force.add(car, hitbox, Vector3.zero, com, true)
 
         if longInput == 0 and math.abs(longV) > 0.25 then
             force.add(car, hitbox, look * -longVDir * acceleration.coasting, com, true)
