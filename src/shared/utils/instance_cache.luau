@@ -38,7 +38,7 @@ function InstanceCache:done<T>(instance: T)
     end
 
     inst.Parent = cacheFolder
-    self.cache[#self.cache] = instance
+    self.cache[#self.cache + 1] = instance
 end
 
 return InstanceCache
