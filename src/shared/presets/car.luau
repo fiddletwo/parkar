@@ -18,9 +18,13 @@ export type CarPreset = {
         rr: Vector3,
     },
     acceleration: {
-        throttle: curve.Curve,
+        throttle: number,
         braking: number,
         coasting: number,
+    },
+    curve: {
+        throttle: curve.Curve,
+        friction: curve.Curve,
     },
 }
 
@@ -41,13 +45,20 @@ const presets: { [string]: CarPreset } = {
             rr = Vector3.new(2, 0, 3),
         },
         acceleration = {
-            throttle = curve.linear {
-                { x = 0, y = 50 },
-                { x = 40, y = 5 },
-                { x = 45, y = 0 },
-            },
+            throttle = 50,
             braking = 75,
             coasting = 8,
+        },
+        curve = {
+            throttle = curve.linear {
+                { x = 0, y = 1 },
+                { x = 40, y = 0.1 },
+                { x = 45, y = 0 },
+            },
+            friction = curve.linear {
+                { x = 0, y = 1 },
+                { x = 1, y = 0.2 },
+            },
         },
     },
 }

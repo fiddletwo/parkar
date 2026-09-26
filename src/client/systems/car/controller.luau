@@ -35,36 +35,39 @@ const function calculateSpringForce(
     return (stiffnessForce + dampingForce), length
 end
 
-const function calculateDrivingForce(
-    preset: presets.CarPreset,
-    transform: CFrame,
-    rawVelocity: Vector3,
-    input: Vector2
-): Vector3
-    const look = transform.LookVector
-    const longV = look:Dot(rawVelocity)
-    const longVDir = math.sign(longV)
+const function calculateDrivingForce(preset: presets.CarPreset, longVelocity: number, input: Vector2): number
+    const longVelocityDir = math.sign(longVelocity)
 
     const longInput = input.Y
     const longInputDir = math.sign(longInput)
 
     const acceleration = preset.acceleration
+    const curve = preset.curve
 
-    local drivingForce = Vector3.zero
+    local drivingForce = 0
 
-    if longInput == 0 and math.abs(longV) > 0.25 then
-        drivingForce = look * -longVDir * acceleration.coasting
+    if longInput == 0 and math.abs(longVelocity) > 0.25 then
+        drivingForce = -longVelocityDir * acceleration.coasting
     elseif longInput ~= 0 then
-        if longInputDir == longVDir or longVDir == 0 then
+        if longInputDir == longVelocityDir or longVelocityDir == 0 then
             -- at the moment reverse speed is the same as forward speed, should change
-            const throttle = acceleration.throttle:evaluate(math.abs(longV))
-            drivingForce = look * throttle * longInputDir
+            const throttle = curve.throttle:evaluate(math.abs(longVelocity)) * acceleration.throttle
+            drivingForce = throttle * longInputDir
         else
-            drivingForce = look * -longVDir * acceleration.braking
+            drivingForce = -longVelocityDir * acceleration.braking
         end
     end
 
     return drivingForce
+end
+
+const function calculateFrictionForce(preset: presets.CarPreset, longVelocity: number, latVelocity: number): number
+    const curve = preset.curve
+
+    const ratio = latVelocity / (latVelocity + longVelocity)
+    const slideFriction = curve.friction:evaluate(ratio)
+
+    return slideFriction
 end
 
 const function system(world: jecs.World)
@@ -80,7 +83,14 @@ const function system(world: jecs.World)
     const preset = carUtil.preset(car)
     const params = carUtil.params(car)
     const hitbox = model.Hitbox
+
     const transform = hitbox.CFrame
+    const look = transform.LookVector
+    const right = transform.RightVector
+
+    const velocity = hitbox.AssemblyLinearVelocity
+    const longVelocity = velocity:Dot(look)
+    const latVelocity = velocity:Dot(right)
 
     const dt = simulation:getDeltaTime(Enum.StepFrequency.Hz60)
 
@@ -105,8 +115,9 @@ const function system(world: jecs.World)
             force.add(`{name}-suspension`, hitbox, suspensionForce, ray.Position)
             world:set(id, ct.Length, length)
 
-            const drivingForce = calculateDrivingForce(preset, transform, hitbox.AssemblyLinearVelocity, input)
-            force.add(`{name}-driving`, hitbox, drivingForce, comPosition, true)
+            const drivingForce = look * calculateDrivingForce(preset, longVelocity, input)
+            const frictionForce = right * -latVelocity * calculateFrictionForce(preset, longVelocity, latVelocity)
+            force.add(`{name}-com`, hitbox, drivingForce + frictionForce, comPosition, true)
         else
             world:set(id, ct.Length, spring.rest)
         end
