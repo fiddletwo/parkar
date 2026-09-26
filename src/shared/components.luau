@@ -12,6 +12,9 @@ const components = {
     -- State
     Locked = world:entity(),
 
+    -- General
+    Name = world:component<<string>>(),
+
     -- Player
     Player = world:component<<Player>>(),
 

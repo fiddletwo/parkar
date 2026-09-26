@@ -18,6 +18,10 @@ const function createCar(preset: presets.CarPreset): Car
     partUtil.setBlockMass(hitbox, 200)
     partUtil.setElasticity(hitbox, 0.1)
 
+    if hitbox.CenterOfMass ~= Vector3.zero then
+        warn "Car's center of mass is not centered! Did you forget to set welded parts to massless?"
+    end
+
     return model :: Car
 end
 

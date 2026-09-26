@@ -4,6 +4,7 @@ export type WheelSpring = {
     stiffness: number,
     damping: number,
     rest: number,
+    travel: number,
     radius: number,
 }
 
@@ -30,6 +31,7 @@ const presets: { [string]: CarPreset } = {
             stiffness = 10000,
             damping = 1000,
             rest = 2,
+            travel = 1.5,
             radius = 1,
         },
         wheels = {
@@ -40,12 +42,12 @@ const presets: { [string]: CarPreset } = {
         },
         acceleration = {
             throttle = curve.linear {
-                { x = 0, y = 200 },
-                { x = 40, y = 20 },
+                { x = 0, y = 50 },
+                { x = 40, y = 5 },
                 { x = 45, y = 0 },
             },
-            braking = 300,
-            coasting = 30,
+            braking = 75,
+            coasting = 8,
         },
     },
 }
