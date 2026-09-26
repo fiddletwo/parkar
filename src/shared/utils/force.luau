@@ -40,11 +40,7 @@ const function _createForce(part: BasePart, force: Vector3, position: Vector3): 
     }
 end
 
-const function addForce(id: any, part: BasePart, force: Vector3, position: Vector3, ignoreMass: boolean?)
-    if ignoreMass then
-        force *= part.AssemblyMass
-    end
-
+const function addForce(id: any, part: BasePart, force: Vector3, position: Vector3)
     if forceTable[part] == nil then
         forceTable[part] = {}
     end

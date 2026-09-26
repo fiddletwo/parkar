@@ -46,8 +46,9 @@ const function calculateDrivingForce(preset: presets.CarPreset, longVelocity: nu
 
     local drivingForce = 0
 
-    if longInput == 0 and math.abs(longVelocity) > 0.25 then
-        drivingForce = -longVelocityDir * acceleration.coasting
+    if longInput == 0 then
+        -- WARNING: this might cause issues not ignoring coasting acceleration when really slow
+        drivingForce = math.abs(longVelocity) < 0.25 and -longVelocity or -longVelocityDir * acceleration.coasting
     elseif longInput ~= 0 then
         if longInputDir == longVelocityDir or longVelocityDir == 0 then
             -- at the moment reverse speed is the same as forward speed, should change
@@ -61,8 +62,11 @@ const function calculateDrivingForce(preset: presets.CarPreset, longVelocity: nu
     return drivingForce
 end
 
-const function calculateFrictionForce(preset: presets.CarPreset, longVelocity: number, latVelocity: number): number
+const function calculateFriction(preset: presets.CarPreset, longVelocity: number, latVelocity: number): number
     const curve = preset.curve
+
+    latVelocity = math.abs(latVelocity)
+    longVelocity = math.abs(longVelocity)
 
     const ratio = latVelocity / (latVelocity + longVelocity)
     const slideFriction = curve.friction:evaluate(ratio)
@@ -97,8 +101,8 @@ const function system(world: jecs.World)
     const _, state = action(inputs.movement)
     const input = state.input2D
 
-    for id, name, offset, previousLength, spring in
-        world:query(ct.Name, ct.Position, ct.Length, ct.WheelSpring):with(pair(ChildOf, car))
+    for id, name, spring, offset, previousLength in
+        world:query(ct.Name, ct.WheelSpring, ct.Position, ct.Length):with(pair(ChildOf, car))
     do
         const position = transform * offset
         -- this relies on ensuring all other non-hitbox parts are massless
@@ -115,21 +119,21 @@ const function system(world: jecs.World)
             force.add(`{name}-suspension`, hitbox, suspensionForce, ray.Position)
             world:set(id, ct.Length, length)
 
-            const drivingForce = look * calculateDrivingForce(preset, longVelocity, input)
-            const frictionForce = right * -latVelocity * calculateFrictionForce(preset, longVelocity, latVelocity)
-            force.add(`{name}-com`, hitbox, drivingForce + frictionForce, comPosition, true)
+            const drivingForce = calculateDrivingForce(preset, longVelocity, input) * hitbox.AssemblyMass * look
+            -- const frictionForce = calculateFrictionForce(preset, longVelocity, latVelocity)
+            --     * -math.sign(latVelocity)
+            --     * springForce
+            --     * right
+
+            calculateFriction(preset, longVelocity, latVelocity)
+
+            force.add(`{name}-com`, hitbox, drivingForce, comPosition)
+
+            gizmos:DrawRay(comPosition, drivingForce * 0.0005)
         else
             world:set(id, ct.Length, spring.rest)
         end
     end
-
-    --     if grounded then
-    --         const com = hitbox.AssemblyCenterOfMass
-    --
-    --         const drivingForce = calculateDrivingForce(preset, transform, hitbox.AssemblyLinearVelocity, input)
-    --
-    --         force.add(car, hitbox, drivingForce, com, true)
-    --     end
 end
 
 return {
