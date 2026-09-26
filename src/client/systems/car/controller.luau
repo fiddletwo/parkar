@@ -119,17 +119,9 @@ const function system(world: jecs.World)
             force.add(`{name}-suspension`, hitbox, suspensionForce, ray.Position)
             world:set(id, ct.Length, length)
 
-            const drivingForce = calculateDrivingForce(preset, longVelocity, input) * hitbox.AssemblyMass * look
-            -- const frictionForce = calculateFrictionForce(preset, longVelocity, latVelocity)
-            --     * -math.sign(latVelocity)
-            --     * springForce
-            --     * right
-
-            calculateFriction(preset, longVelocity, latVelocity)
-
-            force.add(`{name}-com`, hitbox, drivingForce, comPosition)
-
-            gizmos:DrawRay(comPosition, drivingForce * 0.0005)
+            const drivingForce = calculateDrivingForce(preset, longVelocity, input) * look
+            const frictionForce = calculateFriction(preset, longVelocity, latVelocity) * -latVelocity * right
+            force.add(`{name}-com`, hitbox, drivingForce + frictionForce, comPosition, true)
         else
             world:set(id, ct.Length, spring.rest)
         end
