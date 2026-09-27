@@ -88,13 +88,7 @@ const function system(world: jecs.World)
     const params = carUtil.params(car)
     const hitbox = model.Hitbox
 
-    const transform = hitbox.CFrame
-    const look = transform.LookVector
-    const right = transform.RightVector
-
-    const velocity = hitbox.AssemblyLinearVelocity
-    const longVelocity = velocity:Dot(look)
-    const latVelocity = velocity:Dot(right)
+    const hitboxTransform = hitbox.CFrame
 
     const dt = simulation:getDeltaTime(Enum.StepFrequency.Hz60)
 
@@ -104,15 +98,26 @@ const function system(world: jecs.World)
     for id, name, spring, offset, previousLength in
         world:query(ct.Name, ct.WheelSpring, ct.Position, ct.Length):with(pair(ChildOf, car))
     do
-        const position = transform * offset
         -- this relies on ensuring all other non-hitbox parts are massless
-        const comPosition = transform * (offset * CANCEL_Y)
+        const comTransform = hitboxTransform * CFrame.new(offset * CANCEL_Y)
+        const comPosition = comTransform.Position
 
-        const rayDirection = -transform.UpVector
+        const look = comTransform.LookVector
+        const right = comTransform.RightVector
+
+        const velocity = hitbox:GetVelocityAtPosition(comPosition)
+        const longVelocity = velocity:Dot(look)
+        const latVelocity = velocity:Dot(right)
+
+        const springTransform = hitboxTransform * CFrame.new(offset)
+        const springOrigin = springTransform.Position
+
+        const rayDirection = -springTransform.UpVector
         const rayDistance = spring.rest + spring.radius
-        const ray = Workspace:Raycast(position, rayDirection * rayDistance, params)
+        const ray = Workspace:Raycast(springOrigin, rayDirection * rayDistance, params)
 
-        gizmos:DrawRaycast(position, rayDirection, ray :: RaycastResult)
+        gizmos:DrawRaycast(springOrigin, rayDirection, ray :: RaycastResult)
+
         if ray then
             const springForce, length = calculateSpringForce(spring, ray.Distance, previousLength, dt)
             const suspensionForce = ray.Normal * springForce
@@ -122,6 +127,8 @@ const function system(world: jecs.World)
             const drivingForce = calculateDrivingForce(preset, longVelocity, input) * look
             const frictionForce = calculateFriction(preset, longVelocity, latVelocity) * -latVelocity * right
             force.add(hitbox, drivingForce + frictionForce, comPosition, force.Mode.Acceleration)
+
+            gizmos:DrawRay(comPosition, frictionForce)
         else
             world:set(id, ct.Length, spring.rest)
         end
