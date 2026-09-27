@@ -57,7 +57,7 @@ const presets: { [string]: CarPreset } = {
             },
             friction = curve.linear {
                 { x = 0, y = 1 },
-                { x = 1, y = 0.2 },
+                { x = 1, y = 0.35 },
             },
         },
     },

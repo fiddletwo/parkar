@@ -116,12 +116,12 @@ const function system(world: jecs.World)
         if ray then
             const springForce, length = calculateSpringForce(spring, ray.Distance, previousLength, dt)
             const suspensionForce = ray.Normal * springForce
-            force.add(`{name}-suspension`, hitbox, suspensionForce, ray.Position)
+            force.add(hitbox, suspensionForce, ray.Position)
             world:set(id, ct.Length, length)
 
             const drivingForce = calculateDrivingForce(preset, longVelocity, input) * look
             const frictionForce = calculateFriction(preset, longVelocity, latVelocity) * -latVelocity * right
-            force.add(`{name}-com`, hitbox, drivingForce + frictionForce, comPosition, true)
+            force.add(hitbox, drivingForce + frictionForce, comPosition, force.Mode.Acceleration)
         else
             world:set(id, ct.Length, spring.rest)
         end

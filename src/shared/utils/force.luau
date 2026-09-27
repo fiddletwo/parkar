@@ -1,17 +1,24 @@
+const simulation = require "../ecs/simulation"
 const InstanceCache = require "./instance_cache"
-
-type ForceInstance = Attachment & { Vector: VectorForce }
-
-type Force = {
-    instance: ForceInstance,
-    dirty: boolean,
-}
 
 const forceTable: {
     [BasePart]: {
         [any]: Force,
     },
 } = {}
+
+const modes = {
+    Force = 0,
+    Acceleration = 1,
+    Impulse = 2,
+}
+
+type ForceInstance = Attachment & { Vector: VectorForce }
+type Force = {
+    instance: ForceInstance,
+    dirty: boolean,
+}
+type ForceMode = index<typeof(modes), keyof<typeof(modes)>>
 
 const forceInstance = Instance.new "Attachment"
 forceInstance.Name = "Force"
@@ -40,7 +47,7 @@ const function _createForce(part: BasePart, force: Vector3, position: Vector3): 
     }
 end
 
-const function addForce(id: any, part: BasePart, force: Vector3, position: Vector3, ignoreMass: boolean?)
+const function _addForce(id: any, part: BasePart, force: Vector3, position: Vector3, ignoreMass: boolean?)
     if ignoreMass then
         force *= part.AssemblyMass
     end
@@ -60,7 +67,7 @@ const function addForce(id: any, part: BasePart, force: Vector3, position: Vecto
     end
 end
 
-const function cleanupForces()
+const function _cleanupForces()
     for part, forces in forceTable do
         -- part is destroyed
         if part.Parent == nil then
@@ -82,7 +89,24 @@ const function cleanupForces()
     end
 end
 
+const function addForce(part: BasePart, force: Vector3, position: Vector3, mode: ForceMode?)
+    if mode == nil then
+        mode = modes.Force
+    end
+
+    -- hardcoded for now
+    const dt = simulation:getDeltaTime(Enum.StepFrequency.Hz60)
+
+    if mode == modes.Force then
+        force *= dt
+    elseif mode == modes.Acceleration then
+        force *= dt * part.AssemblyMass
+    end
+
+    part:ApplyImpulseAtPosition(force, position)
+end
+
 return {
+    Mode = modes,
     add = addForce,
-    cleanup = cleanupForces,
 }
