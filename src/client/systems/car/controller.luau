@@ -89,6 +89,7 @@ const function system(world: jecs.World)
     const hitbox = model.Hitbox
 
     const hitboxTransform = hitbox.CFrame
+    const hitboxLongVelocity = hitbox.AssemblyLinearVelocity:Dot(hitboxTransform.LookVector)
 
     const dt = simulation:getDeltaTime(Enum.StepFrequency.Hz60)
 
@@ -124,7 +125,7 @@ const function system(world: jecs.World)
             force.add(hitbox, suspensionForce, ray.Position)
             world:set(id, ct.Length, length)
 
-            const drivingForce = calculateDrivingForce(preset, longVelocity, input) * look
+            const drivingForce = calculateDrivingForce(preset, hitboxLongVelocity, input) * look
             const frictionForce = calculateFriction(preset, longVelocity, latVelocity) * -latVelocity * right
             force.add(hitbox, drivingForce + frictionForce, comPosition, force.Mode.Acceleration)
 
