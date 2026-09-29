@@ -60,16 +60,9 @@ const function calculateDrivingForce(preset: presets.CarPreset, longVelocity: nu
     return drivingForce
 end
 
-const function calculateFriction(preset: presets.CarPreset, longVelocity: number, latVelocity: number): number
-    const curve = preset.curve
-
-    latVelocity = math.abs(latVelocity)
-    longVelocity = math.abs(longVelocity)
-
-    const ratio = latVelocity / (latVelocity + longVelocity)
-    const slideFriction = curve.friction:evaluate(ratio)
-
-    return slideFriction
+const function getSlipAngleRatio(latVelocity: number, longVelocity: number): number
+    const slipAngleRad = math.atan(latVelocity / math.max(math.abs(longVelocity), 1))
+    return math.abs(slipAngleRad / (math.pi / 2))
 end
 
 const function system(world: jecs.World)
@@ -94,8 +87,8 @@ const function system(world: jecs.World)
     const _, state = action(inputs.movement)
     const input = state.input2D
 
-    for id, name, spring, offset, previousLength in
-        world:query(ct.Name, ct.WheelSpring, ct.Position, ct.Length):with(pair(ChildOf, car))
+    for id, name, spring, offset, previousLength, latFriction in
+        world:query(ct.Name, ct.WheelSpring, ct.Position, ct.Length, ct.Friction):with(pair(ChildOf, car))
     do
         -- this relies on ensuring all other non-hitbox parts are massless
         local comTransform = hitboxTransform * CFrame.new(offset * CANCEL_Y)
@@ -128,10 +121,21 @@ const function system(world: jecs.World)
             world:set(id, ct.Length, length)
 
             const drivingForce = calculateDrivingForce(preset, hitboxLongVelocity, input.Y) * look
-            const frictionForce = calculateFriction(preset, longVelocity, latVelocity) * -latVelocity * right
-            force.add(hitbox, drivingForce + frictionForce, comPosition, force.Mode.Acceleration)
+            force.add(hitbox, drivingForce, comPosition, force.Mode.Acceleration)
 
-            gizmos:DrawRay(comPosition, frictionForce)
+            const curve = preset.curve
+            const relaxationLength = 0.055
+            const slipAngle = getSlipAngleRatio(latVelocity, longVelocity)
+
+            const latSlipTarget = curve.friction:evaluate(slipAngle) * -math.sign(latVelocity)
+            const latCoefficient = math.clamp(math.abs(latVelocity) / relaxationLength * dt, 0, 1)
+
+            -- integrate towards target friction value
+            latFriction += (latSlipTarget - latFriction) * latCoefficient
+            world:set(id, ct.Friction, latFriction)
+
+            const frictionForce = right * latFriction * math.max(springForce, 0)
+            force.add(hitbox, frictionForce, comPosition)
         else
             world:set(id, ct.Length, spring.rest)
         end

@@ -51,6 +51,7 @@ const function system(world: jecs.World)
                     world:set(wheel, ct.WheelSpring, preset.spring)
                     world:set(wheel, ct.Position, position)
                     world:set(wheel, ct.Length, preset.spring.rest)
+                    world:set(wheel, ct.Friction, 0)
 
                     replicator:set_reliable(wheel, ct.Name)
                     replicator:set_reliable(wheel, ct.Wheel)
@@ -58,6 +59,7 @@ const function system(world: jecs.World)
                     replicator:set_reliable(wheel, ct.WheelSpring)
                     replicator:set_reliable(wheel, ct.Position)
                     replicator:set_once(wheel, ct.Length)
+                    replicator:set_once(wheel, ct.Friction)
                 end
             end)
         end

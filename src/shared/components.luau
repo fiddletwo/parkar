@@ -32,6 +32,7 @@ const components = {
     Transform = world:component<<CFrame>>(),
     Position = world:component<<Vector3>>(),
     Orientation = world:component<<Vector3>>(),
+    Friction = world:component<<number>>(),
     Length = world:component<<number>>(),
 
     -- Raycasts
