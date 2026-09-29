@@ -47,7 +47,7 @@ const presets: { [string]: CarPreset } = {
         acceleration = {
             throttle = 50,
             braking = 75,
-            coasting = 8,
+            coasting = 5,
         },
         curve = {
             throttle = curve.linear {

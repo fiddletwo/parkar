@@ -35,10 +35,8 @@ const function calculateSpringForce(
     return (stiffnessForce + dampingForce), length
 end
 
-const function calculateDrivingForce(preset: presets.CarPreset, longVelocity: number, input: Vector2): number
+const function calculateDrivingForce(preset: presets.CarPreset, longVelocity: number, longInput: number): number
     const longVelocityDir = math.sign(longVelocity)
-
-    const longInput = input.Y
     const longInputDir = math.sign(longInput)
 
     const acceleration = preset.acceleration
@@ -100,8 +98,12 @@ const function system(world: jecs.World)
         world:query(ct.Name, ct.WheelSpring, ct.Position, ct.Length):with(pair(ChildOf, car))
     do
         -- this relies on ensuring all other non-hitbox parts are massless
-        const comTransform = hitboxTransform * CFrame.new(offset * CANCEL_Y)
+        local comTransform = hitboxTransform * CFrame.new(offset * CANCEL_Y)
         const comPosition = comTransform.Position
+
+        if name == "fl" or name == "fr" then
+            comTransform *= CFrame.Angles(0, math.rad(input.X * -30), 0)
+        end
 
         const look = comTransform.LookVector
         const right = comTransform.RightVector
@@ -125,7 +127,7 @@ const function system(world: jecs.World)
             force.add(hitbox, suspensionForce, ray.Position)
             world:set(id, ct.Length, length)
 
-            const drivingForce = calculateDrivingForce(preset, hitboxLongVelocity, input) * look
+            const drivingForce = calculateDrivingForce(preset, hitboxLongVelocity, input.Y) * look
             const frictionForce = calculateFriction(preset, longVelocity, latVelocity) * -latVelocity * right
             force.add(hitbox, drivingForce + frictionForce, comPosition, force.Mode.Acceleration)
 
