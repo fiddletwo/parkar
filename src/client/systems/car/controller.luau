@@ -8,12 +8,11 @@ const inputs = require "../../inputs"
 const force = require "@game/ReplicatedStorage/shared/utils/force"
 const gizmos = require "@game/ReplicatedStorage/shared/utils/gizmos"
 const action = require "@game/ReplicatedStorage/shared/utils/input/action"
+const vector3Util = require "@game/ReplicatedStorage/shared/utils/vector3_util"
 const carUtil = require "../../utils/car"
 
 const pair = jecs.pair
 const ChildOf = jecs.ChildOf
-
-const CANCEL_Y = Vector3.new(1, 0, 1)
 
 const function calculateSpringForce(
     spring: presets.WheelSpring,
@@ -91,19 +90,12 @@ const function system(world: jecs.World)
         world:query(ct.Name, ct.WheelSpring, ct.Position, ct.Length, ct.Friction):with(pair(ChildOf, car))
     do
         -- this relies on ensuring all other non-hitbox parts are massless
-        local comTransform = hitboxTransform * CFrame.new(offset * CANCEL_Y)
+        local comTransform = hitboxTransform * CFrame.new(offset * vector3Util.CANCEL_Y)
         const comPosition = comTransform.Position
 
         if name == "fl" or name == "fr" then
             comTransform *= CFrame.Angles(0, math.rad(input.X * -30), 0)
         end
-
-        const look = comTransform.LookVector
-        const right = comTransform.RightVector
-
-        const velocity = hitbox:GetVelocityAtPosition(comPosition)
-        const longVelocity = velocity:Dot(look)
-        const latVelocity = velocity:Dot(right)
 
         const springTransform = hitboxTransform * CFrame.new(offset)
         const springOrigin = springTransform.Position
@@ -115,6 +107,13 @@ const function system(world: jecs.World)
         gizmos:DrawRaycast(springOrigin, rayDirection, ray :: RaycastResult)
 
         if ray then
+            const look = vector3Util.projectOnPlane(comTransform.LookVector, ray.Normal).Unit
+            const right = vector3Util.projectOnPlane(comTransform.RightVector, ray.Normal).Unit
+
+            const velocity = comTransform:VectorToObjectSpace(hitbox:GetVelocityAtPosition(comPosition))
+            const longVelocity = -velocity.Z
+            const latVelocity = velocity.X
+
             const springForce, length = calculateSpringForce(spring, ray.Distance, previousLength, dt)
             const suspensionForce = ray.Normal * springForce
             force.add(hitbox, suspensionForce, ray.Position)
