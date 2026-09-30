@@ -1,5 +1,11 @@
 const ReplicatedStorage = game:GetService "ReplicatedStorage"
 
+export type Input1D = {
+    up: Enum.KeyCode,
+    down: Enum.KeyCode,
+    clamp: boolean?,
+}
+
 export type Input2D = {
     up: Enum.KeyCode,
     down: Enum.KeyCode,
@@ -11,6 +17,7 @@ export type Input2D = {
 export type InputSchema = {
     type: Enum.InputActionType?,
     keycodes: { Enum.KeyCode }?,
+    input1D: Input1D?,
     input2D: Input2D?,
 }
 export type InputTable = {
@@ -27,6 +34,14 @@ export type ActionState = {
 const inputFolder = ReplicatedStorage:FindFirstChild "Inputs" or Instance.new "Folder"
 inputFolder.Name = "Inputs"
 inputFolder.Parent = ReplicatedStorage
+
+const function input1D(up: Enum.KeyCode, down: Enum.KeyCode, clamp: boolean?): Input1D
+    return {
+        up = up,
+        down = down,
+        clamp = clamp,
+    }
+end
 
 const function input2D(
     up: Enum.KeyCode,
@@ -66,6 +81,15 @@ const function readInputs(contextName: string, inputs: InputTable): { [string]: 
                 binding.Parent = action
             end
         end
+        const input1D = schema.input1D
+        if input1D then
+            const binding = Instance.new "InputBinding"
+            binding.Name = "Input1D"
+            binding.Up = input1D.up
+            binding.Down = input1D.down
+            binding.ClampMagnitudeToOne = input1D.clamp or true
+            binding.Parent = action
+        end
         const input2D = schema.input2D
         if input2D then
             const binding = Instance.new "InputBinding"
@@ -87,5 +111,6 @@ end
 
 return {
     read = readInputs,
+    input1D = input1D,
     input2D = input2D,
 }

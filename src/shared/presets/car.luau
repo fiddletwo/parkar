@@ -21,6 +21,10 @@ export type CarPreset = {
         throttle: number,
         braking: number,
         coasting: number,
+        yaw: number,
+        pitch: number,
+        roll: number,
+        drag: number,
     },
     curve: {
         throttle: curve.Curve,
@@ -48,6 +52,12 @@ const presets: { [string]: CarPreset } = {
             throttle = 50,
             braking = 75,
             coasting = 5,
+
+            yaw = 30,
+            pitch = 60,
+            roll = 30,
+
+            drag = 20,
         },
         curve = {
             throttle = curve.linear {

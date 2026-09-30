@@ -2,6 +2,7 @@ type ActionState = {
     pressed: boolean,
     released: boolean,
     held: boolean,
+    input1D: number,
     input2D: Vector2,
 }
 
@@ -16,6 +17,7 @@ const function actionState(inputAction: InputAction): ActionState
         pressed = false,
         released = false,
         held = false,
+        input1D = 0,
         input2D = Vector2.zero,
     }
     actions[inputAction] = state
@@ -33,6 +35,8 @@ const function action(inputAction: InputAction): (boolean, ActionState, boolean)
         state.pressed = held and not wasHeld
         state.released = not held and wasHeld
         state.held = held
+    elseif inputAction.Type == Enum.InputActionType.Direction1D then
+        state.input1D = held
     elseif inputAction.Type == Enum.InputActionType.Direction2D then
         state.input2D = held
     end

@@ -11,6 +11,7 @@ const modes = {
     Force = 0,
     Acceleration = 1,
     Impulse = 2,
+    VelocityChange = 3,
 }
 
 type ForceInstance = Attachment & { Vector: VectorForce }
@@ -101,12 +102,34 @@ const function addForce(part: BasePart, force: Vector3, position: Vector3, mode:
         force *= dt
     elseif mode == modes.Acceleration then
         force *= dt * part.AssemblyMass
+    elseif mode == modes.VelocityChange then
+        force *= part.AssemblyMass
     end
 
     part:ApplyImpulseAtPosition(force, position)
 end
 
+const function addTorque(part: BasePart, torque: Vector3, mode: ForceMode?)
+    if mode == nil then
+        mode = modes.Force
+    end
+
+    -- hardcoded for now
+    const dt = simulation:getDeltaTime(Enum.StepFrequency.Hz60)
+
+    if mode == modes.Force then
+        torque *= dt
+    elseif mode == modes.Acceleration then
+        torque *= dt * part.AssemblyMass
+    elseif mode == modes.VelocityChange then
+        torque *= part.AssemblyMass
+    end
+
+    part:ApplyAngularImpulse(torque)
+end
+
 return {
     Mode = modes,
     add = addForce,
+    torque = addTorque,
 }

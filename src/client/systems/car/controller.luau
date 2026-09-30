@@ -73,8 +73,8 @@ const function system(world: jecs.World)
 
     const preset = carUtil.preset(car)
     const params = carUtil.params(car)
-    const hitbox = model.Hitbox
 
+    const hitbox = model.Hitbox
     const hitboxTransform = hitbox.CFrame
     const hitboxLongVelocity = hitbox.AssemblyLinearVelocity:Dot(hitboxTransform.LookVector)
 
@@ -82,6 +82,10 @@ const function system(world: jecs.World)
 
     const _, state = action(inputs.movement)
     const input = state.input2D
+
+    const acceleration = preset.acceleration
+
+    local wheelsGrounded = 0
 
     for id, name, spring, offset, previousLength, latFriction in
         world:query(ct.Name, ct.WheelSpring, ct.Position, ct.Length, ct.Friction):with(pair(ChildOf, car))
@@ -104,6 +108,8 @@ const function system(world: jecs.World)
         gizmos:DrawRaycast(springOrigin, rayDirection, ray :: RaycastResult)
 
         if ray then
+            wheelsGrounded += 1
+
             const look = vector3Util.projectOnPlane(comTransform.LookVector, ray.Normal).Unit
             const right = vector3Util.projectOnPlane(comTransform.RightVector, ray.Normal).Unit
 
@@ -135,6 +141,34 @@ const function system(world: jecs.World)
         else
             world:set(id, ct.Length, spring.rest)
         end
+    end
+
+    if wheelsGrounded >= 3 then
+        if action(inputs.jump) then
+            force.add(hitbox, hitboxTransform.UpVector * 45, hitbox.Position, force.Mode.VelocityChange)
+        end
+    else
+        const up = hitboxTransform.UpVector
+        const look = hitboxTransform.LookVector
+        const right = hitboxTransform.RightVector
+
+        const _, rollState = action(inputs.roll)
+        const rollInput = rollState.input1D
+
+        const hitboxAngularVel = hitbox.AssemblyAngularVelocity
+        const yawVel = hitboxAngularVel:Dot(up)
+        const rollVel = hitboxAngularVel:Dot(look)
+        const pitchVel = hitboxAngularVel:Dot(right)
+
+        const drag = acceleration.drag * yawVel * up * (1 - math.abs(input.X))
+            + acceleration.drag * rollVel * look * (1 - math.abs(input.Y))
+            + acceleration.drag * pitchVel * right * (1 - math.abs(rollInput))
+
+        const torque = acceleration.yaw * -input.X * up
+            + acceleration.roll * rollInput * look
+            + acceleration.pitch * -input.Y * right
+
+        force.torque(hitbox, torque - drag, force.Mode.Acceleration)
     end
 end
 

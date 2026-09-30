@@ -12,6 +12,13 @@ const inputs = {
         type = Enum.InputActionType.Direction2D,
         input2D = input.input2D(Enum.KeyCode.W, Enum.KeyCode.S, Enum.KeyCode.A, Enum.KeyCode.D),
     },
+    roll = {
+        type = Enum.InputActionType.Direction1D,
+        input1D = input.input1D(Enum.KeyCode.E, Enum.KeyCode.Q),
+    },
+    jump = {
+        keycodes = { Enum.KeyCode.MouseRightButton },
+    },
 }
 
 return input.read("GameplayContext", inputs)
