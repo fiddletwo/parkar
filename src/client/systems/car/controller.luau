@@ -20,10 +20,7 @@ const function calculateSpringForce(
     previousLength: number,
     dt: number
 ): (number, number)
-    const minLength = spring.rest - spring.travel
-    const maxLength = spring.rest + spring.travel
-
-    const length = math.clamp(rawLength - spring.radius, minLength, maxLength)
+    const length = rawLength - spring.radius
 
     const displacement = spring.rest - length
     const stiffnessForce = spring.stiffness * displacement

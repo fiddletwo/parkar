@@ -4,12 +4,12 @@ export type WheelSpring = {
     stiffness: number,
     damping: number,
     rest: number,
-    travel: number,
     radius: number,
 }
 
 export type CarPreset = {
     hitbox: Vector3,
+    mass: number,
     spring: WheelSpring,
     wheels: {
         fl: Vector3,
@@ -31,11 +31,11 @@ export type CarPreset = {
 const presets: { [string]: CarPreset } = {
     default = {
         hitbox = Vector3.new(4, 2, 6),
+        mass = 400,
         spring = {
-            stiffness = 10000,
-            damping = 1000,
+            stiffness = 20000,
+            damping = 2000,
             rest = 2,
-            travel = 1.5,
             radius = 1,
         },
         wheels = {
