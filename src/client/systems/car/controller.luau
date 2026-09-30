@@ -144,8 +144,13 @@ const function system(world: jecs.World)
     end
 
     if wheelsGrounded >= 3 then
-        if action(inputs.jump) then
+        if not world:has(car, pair(ct.Timer, ct.Debounce)) and action(inputs.jump) then
             force.add(hitbox, hitboxTransform.UpVector * 45, hitbox.Position, force.Mode.VelocityChange)
+            world:set(car, pair(ct.Timer, ct.Debounce), {
+                start = os.clock(),
+                duration = 0.3,
+                repeats = false,
+            })
         end
     else
         const up = hitboxTransform.UpVector

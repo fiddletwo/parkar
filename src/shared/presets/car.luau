@@ -53,9 +53,9 @@ const presets: { [string]: CarPreset } = {
             braking = 75,
             coasting = 5,
 
-            yaw = 30,
+            yaw = 40,
             pitch = 60,
-            roll = 30,
+            roll = 40,
 
             drag = 20,
         },

@@ -5,6 +5,12 @@ const jecs = require "@game/ReplicatedStorage/packages/jecs"
 const ecs = require "./utils/ecs"
 const world = require "./world"
 
+export type Timer = {
+    start: number,
+    duration: number,
+    repeats: boolean,
+}
+
 const pair = jecs.pair
 const ref = jecs_utils.ref
 
@@ -37,6 +43,10 @@ const components = {
 
     -- Raycasts
     RaycastParams = world:component<<RaycastParams>>(),
+
+    -- Time
+    Timer = world:component<<Timer>>(),
+    Debounce = world:entity(),
 
     -- Camera
     ActiveCamera = world:component<<jecs.Entity>>(),

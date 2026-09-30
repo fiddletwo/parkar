@@ -15,6 +15,8 @@ replicator:init()
 schedule(world,
     systems.replication.send_updates,
 
+    sharedSystems.timer,
+
     sharedSystems.players.initialize,
     sharedSystems.players.added,
     sharedSystems.players.removed,
