@@ -49,13 +49,13 @@ const presets: { [string]: CarPreset } = {
             rr = Vector3.new(2, 0, 3),
         },
         acceleration = {
-            throttle = 50,
+            throttle = 67,
             braking = 75,
             coasting = 5,
 
-            yaw = 40,
+            yaw = 30,
             pitch = 60,
-            roll = 40,
+            roll = 80,
 
             drag = 20,
         },

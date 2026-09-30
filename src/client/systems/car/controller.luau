@@ -95,6 +95,7 @@ const function system(world: jecs.World)
         const comPosition = comTransform.Position
 
         if name == "fl" or name == "fr" then
+            -- maybe implement ackermann at some point
             comTransform *= CFrame.Angles(0, math.rad(input.X * -30), 0)
         end
 
