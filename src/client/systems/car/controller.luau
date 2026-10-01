@@ -45,8 +45,8 @@ const function calculateDrivingForce(preset: presets.CarPreset, longVelocity: nu
         drivingForce = math.abs(longVelocity) < 0.25 and -longVelocity or -longVelocityDir * acceleration.coasting
     elseif longInput ~= 0 then
         if longInputDir == longVelocityDir or longVelocityDir == 0 then
-            -- at the moment reverse speed is the same as forward speed, should change
-            const throttle = curve.throttle:evaluate(math.abs(longVelocity)) * acceleration.throttle
+            const throttle = curve.throttle:evaluate(math.abs(longVelocity))
+                * (longInput >= 0 and acceleration.throttle or acceleration.reverse)
             drivingForce = throttle * longInputDir
         else
             drivingForce = -longVelocityDir * acceleration.braking

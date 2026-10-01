@@ -19,6 +19,7 @@ export type CarPreset = {
     },
     acceleration: {
         throttle: number,
+        reverse: number,
         braking: number,
         coasting: number,
         yaw: number,
@@ -50,6 +51,7 @@ const presets: { [string]: CarPreset } = {
         },
         acceleration = {
             throttle = 67,
+            reverse = 22,
             braking = 75,
             coasting = 5,
 
