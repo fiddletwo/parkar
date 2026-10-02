@@ -87,6 +87,13 @@ const function system(world: jecs.World)
 
     local wheelsGrounded = 0
 
+    -- ackermann steering
+    const wheelbase = math.abs(preset.wheels.fl.Z - preset.wheels.rl.Z)
+    const track = math.abs(preset.wheels.rl.X - preset.wheels.rr.X)
+
+    const innerAngle = math.deg(math.atan(wheelbase / (preset.turnRadius + track / 2))) * input.X
+    const outerAngle = math.deg(math.atan(wheelbase / (preset.turnRadius - track / 2))) * input.X
+
     for id, name, spring, offset, previousLength, latFriction in
         world:query(ct.Name, ct.WheelSpring, ct.Position, ct.Length, ct.Friction):with(pair(ChildOf, car))
     do
@@ -94,9 +101,24 @@ const function system(world: jecs.World)
         local comTransform = hitboxTransform * CFrame.new(offset * vector3Util.CANCEL_Y)
         const comPosition = comTransform.Position
 
-        if name == "fl" or name == "fr" then
-            -- maybe implement ackermann at some point
-            comTransform *= CFrame.Angles(0, math.rad(input.X * -30), 0)
+        const steerable = name == "fl" or name == "fr"
+        if steerable then
+            local steerAngle = 0
+            if input.X > 0 then
+                if name == "fl" then
+                    steerAngle = innerAngle
+                elseif name == "fr" then
+                    steerAngle = outerAngle
+                end
+            elseif input.X < 0 then
+                if name == "fl" then
+                    steerAngle = outerAngle
+                elseif name == "fr" then
+                    steerAngle = innerAngle
+                end
+            end
+
+            comTransform *= CFrame.Angles(0, math.rad(-steerAngle), 0)
         end
 
         const springTransform = hitboxTransform * CFrame.new(offset)

@@ -17,6 +17,7 @@ export type CarPreset = {
     model: CarModel?,
     hitbox: Vector3,
     mass: number,
+    turnRadius: number,
     spring: WheelSpring,
     wheels: {
         fl: Vector3,
@@ -45,6 +46,7 @@ const presets: { [string]: CarPreset } = {
         model = ReplicatedStorage.assets.cars.truck,
         hitbox = Vector3.new(4, 2, 6),
         mass = 400,
+        turnRadius = 12,
         spring = {
             stiffness = 20000,
             damping = 2000,
@@ -52,10 +54,10 @@ const presets: { [string]: CarPreset } = {
             radius = 1,
         },
         wheels = {
-            fl = Vector3.new(-2, 0, -3),
-            fr = Vector3.new(2, 0, -3),
-            rl = Vector3.new(-2, 0, 3),
-            rr = Vector3.new(2, 0, 3),
+            fl = Vector3.new(-1.5, 0, -2.125),
+            fr = Vector3.new(1.5, 0, -2.125),
+            rl = Vector3.new(-1.5, 0, 2.125),
+            rr = Vector3.new(1.5, 0, 2.125),
         },
         acceleration = {
             throttle = 67,
@@ -77,6 +79,7 @@ const presets: { [string]: CarPreset } = {
             },
             friction = curve.linear {
                 { x = 0, y = 1 },
+                { x = 0.7, y = 1 },
                 { x = 1, y = 0.2 },
             },
         },
