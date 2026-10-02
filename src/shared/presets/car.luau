@@ -1,3 +1,5 @@
+const ReplicatedStorage = game:GetService "ReplicatedStorage"
+
 const curve = require "@game/ReplicatedStorage/shared/utils/curve"
 
 export type WheelSpring = {
@@ -7,7 +9,12 @@ export type WheelSpring = {
     radius: number,
 }
 
+export type CarModel = Model & {
+    Anchor: BasePart,
+}
+
 export type CarPreset = {
+    model: CarModel?,
     hitbox: Vector3,
     mass: number,
     spring: WheelSpring,
@@ -35,6 +42,7 @@ export type CarPreset = {
 
 const presets: { [string]: CarPreset } = {
     default = {
+        model = ReplicatedStorage.assets.cars.truck,
         hitbox = Vector3.new(4, 2, 6),
         mass = 400,
         spring = {

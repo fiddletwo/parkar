@@ -18,6 +18,19 @@ const function createCar(preset: presets.CarPreset): Car
     partUtil.setBlockMass(hitbox, preset.mass)
     partUtil.setElasticity(hitbox, 0.1)
 
+    const car = preset.model
+    if car then
+        const clone = car:Clone()
+
+        const constraint = Instance.new "Weld"
+        constraint.Part0 = clone.Anchor
+        constraint.Part1 = hitbox
+        constraint.Parent = clone.Anchor
+
+        hitbox.Transparency = 1
+        clone.Parent = model
+    end
+
     if hitbox.CenterOfMass ~= Vector3.zero then
         warn "Car's center of mass is not centered! Did you forget to set welded parts to massless?"
     end
