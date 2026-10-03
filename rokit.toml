@@ -1,5 +1,5 @@
 [tools]
-rojo = "rojo-rbx/rojo@7.7.0"
+rojo = "rojo-rbx/rojo@7.7.1"
 stylua = "JohnnyMorganz/stylua@2.5.2"
 luau-lsp = "JohnnyMorganz/luau-lsp@1.69.0"
 blink = "1Axen/blink@0.18.9"
