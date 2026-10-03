@@ -22,6 +22,7 @@ schedule(world,
     sharedSystems.players.removed,
 
     systems.car.controller,
+    systems.car.render,
 
     systems.camera.player,
     systems.camera.update

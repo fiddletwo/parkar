@@ -30,6 +30,9 @@
                 "UseFixedSimulation": "Enabled",
                 "Gravity": 100
             },
+            "RaycastIgnore": {
+                "$className": "Folder"
+            },
             "Cars": {
                 "$className": "Folder"
             }

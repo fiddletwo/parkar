@@ -13,7 +13,7 @@ const action = require "@game/ReplicatedStorage/shared/utils/input/action"
 const userSettings = UserSettings():GetService "UserGameSettings"
 
 const params = RaycastParams.new()
-params.ExcludeInstances = { Workspace.Cars }
+params.ExcludeInstances = { Workspace.RaycastIgnore, Workspace.Cars }
 
 const function system(world: jecs.World)
     local camera = world:get(ct.PlayerCamera, ct.PlayerCamera)

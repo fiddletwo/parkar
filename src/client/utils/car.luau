@@ -33,7 +33,7 @@ const function getRaycastParams(id: jecs.Entity): RaycastParams
     end
 
     params = RaycastParams.new()
-    params.ExcludeInstances = { Workspace.Cars }
+    params.ExcludeInstances = { Workspace.RaycastIgnore, Workspace.Cars }
     return params
 end
 

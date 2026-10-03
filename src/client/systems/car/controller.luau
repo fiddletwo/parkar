@@ -6,7 +6,6 @@ const simulation = require "@game/ReplicatedStorage/shared/ecs/simulation"
 const presets = require "@game/ReplicatedStorage/shared/presets/car"
 const inputs = require "../../inputs"
 const force = require "@game/ReplicatedStorage/shared/utils/force"
-const gizmos = require "@game/ReplicatedStorage/shared/utils/gizmos"
 const action = require "@game/ReplicatedStorage/shared/utils/input/action"
 const vector3Util = require "@game/ReplicatedStorage/shared/utils/vector3_util"
 const carUtil = require "../../utils/car"
@@ -127,8 +126,6 @@ const function system(world: jecs.World)
         const rayDirection = -springTransform.UpVector
         const rayDistance = spring.rest + spring.radius
         const ray = Workspace:Raycast(springOrigin, rayDirection * rayDistance, params)
-
-        gizmos:DrawRaycast(springOrigin, rayDirection, ray :: RaycastResult)
 
         if ray then
             wheelsGrounded += 1
