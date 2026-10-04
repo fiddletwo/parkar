@@ -1,4 +1,5 @@
 const vide = require "@game/ReplicatedStorage/packages/vide"
+const sources = require "../../sources"
 const Padding = require "../../components/padding"
 const colors = require "../../styles/colors"
 const fonts = require "../../styles/fonts"
@@ -8,6 +9,10 @@ const Container = require "../../components/container"
 const create = vide.create
 
 const function Hud()
+    const boostRatio = function()
+        return UDim2.fromScale(sources.car.boost() / 100, 1)
+    end
+
     return Container {
         Size = UDim2.fromScale(1, 1),
 
@@ -27,7 +32,30 @@ const function Hud()
                 TextSize = rem(1.5),
                 TextXAlignment = Enum.TextXAlignment.Left,
 
-                Padding { Left = UDim.new(0, rem(2)()) },
+                Padding { Left = rem.fromUDim(0, 2) },
+            },
+        },
+        create "Frame" {
+            AnchorPoint = Vector2.new(0.5, 1),
+            Position = rem.fromUDim2(0.5, 0, 1, -1.5),
+            Size = rem.fromOffset(30, 0.8),
+            BackgroundColor3 = colors.blackishGray,
+            ClipsDescendants = true,
+
+            create "UICorner" {
+                CornerRadius = UDim.new(1, 0),
+            },
+            create "UIStroke" {
+                Color = colors.white,
+                Thickness = rem(0.125),
+            },
+            create "Frame" {
+                Size = boostRatio,
+                BackgroundColor3 = Color3.fromHex "#E28039",
+
+                create "UICorner" {
+                    CornerRadius = UDim.new(1, 0),
+                },
             },
         },
     }

@@ -30,6 +30,7 @@ const components = {
     CarOf = world:entity(),
     Wheel = world:entity(),
     WheelSpring = world:component<<_presets.WheelSpring>>(),
+    Boost = world:component<<number>>(),
 
     -- Instances
     Renderable = world:component<<Model>>(),

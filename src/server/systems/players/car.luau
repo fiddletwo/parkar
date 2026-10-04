@@ -36,10 +36,12 @@ const function system(world: jecs.World)
                 world:add(car, pair(ct.CarOf, id))
                 world:set(car, ct.Renderable, model)
                 world:set(car, ct.CarPreset, "default")
+                world:set(car, ct.Boost, 100)
 
                 replicator:set_relation(car, ct.CarOf)
                 replicator:set_reliable(car, ct.Renderable)
                 replicator:set_reliable(car, ct.CarPreset)
+                replicator:set_once(car, ct.Boost)
 
                 for name, position in preset.wheels :: { [string]: Vector3 } do
                     const wheel = world:entity()

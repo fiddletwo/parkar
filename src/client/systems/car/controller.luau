@@ -8,6 +8,7 @@ const inputs = require "../../inputs"
 const force = require "@game/ReplicatedStorage/shared/utils/force"
 const action = require "@game/ReplicatedStorage/shared/utils/input/action"
 const vector3Util = require "@game/ReplicatedStorage/shared/utils/vector3_util"
+const sources = require "../../ui/sources"
 const carUtil = require "../../utils/car"
 
 const pair = jecs.pair
@@ -89,7 +90,7 @@ const function system(world: jecs.World)
     const _, moveState = action(inputs.movement)
     const input = moveState.input2D
 
-    const _, boostState = action(inputs.boost)
+    const _, boostState, boostReleased = action(inputs.boost)
     const boosting = boostState.held
 
     const limits = preset.limits
@@ -174,9 +175,9 @@ const function system(world: jecs.World)
         end
     end
 
-    local boost: number
+    local boostForce: number
     if wheelsGrounded >= 3 then
-        boost = acceleration.groundBoost
+        boostForce = acceleration.groundBoost
 
         if not world:has(car, pair(ct.Timer, ct.Debounce)) and action(inputs.jump) then
             force.add(hitbox, hitboxTransform.UpVector * 45, hitbox.Position, force.Mode.VelocityChange)
@@ -187,7 +188,7 @@ const function system(world: jecs.World)
             })
         end
     else
-        boost = acceleration.airBoost
+        boostForce = acceleration.airBoost
 
         const up = hitboxTransform.UpVector
         const look = hitboxTransform.LookVector
@@ -212,8 +213,26 @@ const function system(world: jecs.World)
         force.torque(hitbox, torque - drag, force.Mode.Acceleration)
     end
 
+    const boost = world:get(car, ct.Boost) or 100
     if boosting then
-        force.add(hitbox, hitboxTransform.LookVector * boost, hitbox.Position, force.Mode.Acceleration)
+        if boost > 0 then
+            const targetBoost = math.max(boost - 40 * dt, 0)
+            world:set(car, ct.Boost, targetBoost)
+            force.add(hitbox, hitboxTransform.LookVector * boostForce, hitbox.Position, force.Mode.Acceleration)
+
+            sources.car.boost(targetBoost)
+        end
+    elseif boostReleased then
+        world:set(car, pair(ct.Timer, ct.Boost), {
+            start = os.clock(),
+            duration = 2,
+            repeats = false,
+        })
+    elseif not world:has(car, pair(ct.Timer, ct.Boost)) then
+        const targetBoost = math.min(boost + 10 * dt, 100)
+        world:set(car, ct.Boost, targetBoost)
+
+        sources.car.boost(targetBoost)
     end
 
     -- limit velocity

@@ -24,6 +24,18 @@ const function fromOffset(x: number, y: number): () -> UDim2
     end
 end
 
+const function fromUDim(scale: number, offset: number): () -> UDim
+    return function()
+        return UDim.new(scale, rem(offset)())
+    end
+end
+
+const function fromUDim2(xScale: number, xOffset: number, yScale: number, yOffset: number): () -> UDim2
+    return function()
+        return UDim2.new(xScale, rem(xOffset)(), yScale, rem(yOffset)())
+    end
+end
+
 const function useRem()
     const camera = Workspace.CurrentCamera
 
@@ -45,6 +57,8 @@ end
 return setmetatable({
     useRem = useRem,
     fromOffset = fromOffset,
+    fromUDim = fromUDim,
+    fromUDim2 = fromUDim2,
 }, {
     __call = function(_, scale: number?): () -> number
         return rem(scale)
