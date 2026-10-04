@@ -16,6 +16,9 @@ const inputs = {
         type = Enum.InputActionType.Direction1D,
         input1D = input.input1D(Enum.KeyCode.E, Enum.KeyCode.Q),
     },
+    boost = {
+        keycodes = { Enum.KeyCode.MouseLeftButton },
+    },
     jump = {
         keycodes = { Enum.KeyCode.MouseRightButton },
     },

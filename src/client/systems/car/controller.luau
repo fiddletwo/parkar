@@ -30,11 +30,17 @@ const function calculateSpringForce(
     return (stiffnessForce + dampingForce), length
 end
 
-const function calculateDrivingForce(preset: presets.CarPreset, longVelocity: number, longInput: number): number
+const function calculateDrivingForce(
+    preset: presets.CarPreset,
+    longVelocity: number,
+    longInput: number,
+    boosting: boolean?
+): number
     const longVelocityDir = math.sign(longVelocity)
     const longInputDir = math.sign(longInput)
 
     const acceleration = preset.acceleration
+    const limits = preset.limits
     const curve = preset.curve
 
     local drivingForce = 0
@@ -44,7 +50,7 @@ const function calculateDrivingForce(preset: presets.CarPreset, longVelocity: nu
         drivingForce = math.abs(longVelocity) < 0.25 and -longVelocity or -longVelocityDir * acceleration.coasting
     elseif longInput ~= 0 then
         if longInputDir == longVelocityDir or longVelocityDir == 0 then
-            const throttle = curve.throttle:evaluate(math.abs(longVelocity))
+            const throttle = curve.throttle:evaluate(math.abs(longVelocity) / limits.throttle)
                 * (longInput >= 0 and acceleration.throttle or acceleration.reverse)
             drivingForce = throttle * longInputDir
         else
@@ -75,13 +81,18 @@ const function system(world: jecs.World)
 
     const hitbox = model.Hitbox
     const hitboxTransform = hitbox.CFrame
-    const hitboxLongVelocity = hitbox.AssemblyLinearVelocity:Dot(hitboxTransform.LookVector)
+    const hitboxLinearVel = hitbox.AssemblyLinearVelocity
+    const hitboxLongVelocity = hitboxLinearVel:Dot(hitboxTransform.LookVector)
 
     const dt = simulation:getDeltaTime(Enum.StepFrequency.Hz60)
 
-    const _, state = action(inputs.movement)
-    const input = state.input2D
+    const _, moveState = action(inputs.movement)
+    const input = moveState.input2D
 
+    const _, boostState = action(inputs.boost)
+    const boosting = boostState.held
+
+    const limits = preset.limits
     const acceleration = preset.acceleration
 
     local wheelsGrounded = 0
@@ -142,7 +153,7 @@ const function system(world: jecs.World)
             force.add(hitbox, suspensionForce, ray.Position)
             world:set(id, ct.Length, length)
 
-            const drivingForce = calculateDrivingForce(preset, hitboxLongVelocity, input.Y) * look
+            const drivingForce = look * calculateDrivingForce(preset, hitboxLongVelocity, boosting and 1 or input.Y)
             force.add(hitbox, drivingForce, comPosition, force.Mode.Acceleration)
 
             const curve = preset.curve
@@ -163,7 +174,10 @@ const function system(world: jecs.World)
         end
     end
 
+    local boost: number
     if wheelsGrounded >= 3 then
+        boost = acceleration.groundBoost
+
         if not world:has(car, pair(ct.Timer, ct.Debounce)) and action(inputs.jump) then
             force.add(hitbox, hitboxTransform.UpVector * 45, hitbox.Position, force.Mode.VelocityChange)
             world:set(car, pair(ct.Timer, ct.Debounce), {
@@ -173,6 +187,8 @@ const function system(world: jecs.World)
             })
         end
     else
+        boost = acceleration.airBoost
+
         const up = hitboxTransform.UpVector
         const look = hitboxTransform.LookVector
         const right = hitboxTransform.RightVector
@@ -195,6 +211,13 @@ const function system(world: jecs.World)
 
         force.torque(hitbox, torque - drag, force.Mode.Acceleration)
     end
+
+    if boosting then
+        force.add(hitbox, hitboxTransform.LookVector * boost, hitbox.Position, force.Mode.Acceleration)
+    end
+
+    -- limit velocity
+    hitbox.AssemblyLinearVelocity = hitboxLinearVel.Unit * math.min(hitboxLinearVel.Magnitude, limits.max)
 end
 
 return {
