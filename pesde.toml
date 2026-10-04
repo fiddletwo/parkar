@@ -40,6 +40,6 @@ vide = { repo = "centau/vide", rev = "b010497" }
 replecs = { wally = "pepeeltoro41/replecs", version = "^0.4.0-rc.3" }
 
 [overrides]
-"jabby>vide" = "vide"
+# "jabby>vide" = "vide"
 "planck-jabby>jabby" = "jabby"
-"replecs>jecs,jecs-spring>jecs" = "jecs"
+"replecs>jecs" = "jecs"

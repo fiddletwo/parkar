@@ -5,16 +5,12 @@ name = "fiddletwo/parkar"
 version = "0.1.0"
 target = "roblox"
 
-[overrides."jabby>vide"]
-repo = "https://github.com/centau/vide"
-rev = "b010497"
-
 [overrides."planck-jabby>jabby"]
 wally = "wally#alicesaidhi/jabby"
 version = "^0.6.1"
 index = "default"
 
-[overrides."replecs>jecs,jecs-spring>jecs"]
+[overrides."replecs>jecs"]
 wally = "wally#ukendio/jecs"
 version = "^0.11.0"
 index = "default"
@@ -155,7 +151,7 @@ direct = ["jabby", { wally = "wally#alicesaidhi/jabby", version = "^0.6.1", inde
 [graph."wally#alicesaidhi/jabby@0.6.1 roblox".dependencies]
 jecs = ["wally#ukendio/jecs@0.11.0 roblox", "standard"]
 pebble = ["wally#alicesaidhi/pebble@0.2.0 roblox", "standard"]
-vide = ["centau/vide@0.0.0-ebbeb80266962e06d90b656325c4de9be1ade2a6 roblox", "standard"]
+vide = ["wally#centau/vide@0.4.1 roblox", "standard"]
 
 [graph."wally#alicesaidhi/jabby@0.6.1 roblox".pkg_ref]
 ref_ty = "wally"
