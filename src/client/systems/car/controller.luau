@@ -2,7 +2,7 @@ const Workspace = game:GetService "Workspace"
 
 const jecs = require "@game/ReplicatedStorage/packages/jecs"
 const ct = require "@game/ReplicatedStorage/shared/components"
-const simulation = require "@game/ReplicatedStorage/shared/ecs/simulation"
+const fixed_update = require "@game/ReplicatedStorage/shared/ecs/fixed_update"
 const presets = require "@game/ReplicatedStorage/shared/presets/car"
 const inputs = require "../../inputs"
 const force = require "@game/ReplicatedStorage/shared/utils/force"
@@ -85,7 +85,7 @@ const function system(world: jecs.World)
     const hitboxLinearVel = hitbox.AssemblyLinearVelocity
     const hitboxLongVelocity = hitboxLinearVel:Dot(hitboxTransform.LookVector)
 
-    const dt = simulation:getDeltaTime(Enum.StepFrequency.Hz60)
+    const dt = fixed_update:getDeltaTime()
 
     const _, moveState = action(inputs.movement)
     const input = moveState.input2D
@@ -242,5 +242,5 @@ end
 return {
     name = "car/controller",
     system = system,
-    phase = simulation.Phases.Simulation60Hz,
+    phase = fixed_update.Phases.FixedUpdate,
 }
