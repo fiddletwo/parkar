@@ -1,0 +1,13 @@
+{
+    "luau-lsp.types.robloxSecurityLevel": "RobloxScriptSecurity",
+    "luau-lsp.fflags.enableNewSolver": true,
+    "luau-lsp.completion.imports.ignoreGlobs": [
+        "**/_Index/**",
+        "**/.pesde/**"
+    ],
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "JohnnyMorganz.stylua",
+    "[luau]": {
+        "editor.formatOnSave": true
+    }
+}

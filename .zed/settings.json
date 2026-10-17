@@ -11,13 +11,13 @@
                 },
                 "luau-lsp": {
                     "ignoreGlobs": [
-                        "**/_Index/**",
+                        "**/_Index/**"
                     ],
                     "completion": {
                         "imports": {
-                            "ignoreGlobs": ["**/_Index/**", "**/.pesde/**"],
-                        },
-                    },
+                            "ignoreGlobs": ["**/_Index/**", "**/.pesde/**"]
+                        }
+                    }
                 }
             }
         }
@@ -28,9 +28,9 @@
             "formatter": {
                 "external": {
                     "command": "stylua",
-                    "arguments": ["--respect-ignores", "-"],
-                },
-            },
+                    "arguments": ["--respect-ignores", "-"]
+                }
+            }
         }
     }
 }
