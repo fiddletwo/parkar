@@ -43,10 +43,27 @@ export type CarPreset = {
         max: number,
     },
     curve: {
-        throttle: curve.Curve,
-        friction: curve.Curve,
+        throttle: (number) -> number,
+        friction: (number) -> number,
     },
 }
+
+-- hardcoded using desmos lol
+const function throttle(value: number): number
+    if value >= 0 and value <= 0.8 then
+        return -1.125 * value + 1
+    end
+
+    return -0.5 * value + 0.5
+end
+
+const function friction(value: number): number
+    if value >= 0 and value <= 0.7 then
+        return 1
+    end
+
+    return -2.66667 * value + 2.86667
+end
 
 const presets: { [string]: CarPreset } = {
     default = {
@@ -87,16 +104,8 @@ const presets: { [string]: CarPreset } = {
             max = 60,
         },
         curve = {
-            throttle = curve.linear {
-                { x = 0, y = 1 },
-                { x = 0.8, y = 0.1 },
-                { x = 1, y = 0 },
-            },
-            friction = curve.linear {
-                { x = 0, y = 1 },
-                { x = 0.7, y = 1 },
-                { x = 1, y = 0.2 },
-            },
+            throttle = throttle,
+            friction = friction,
         },
     },
 }

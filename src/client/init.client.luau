@@ -3,10 +3,10 @@ require "@self/inputs"
 
 const ReplicatedStorage = game:GetService "ReplicatedStorage"
 
-const schedule = require "@game/ReplicatedStorage/shared/ecs/schedule"
-const world = require "@game/ReplicatedStorage/shared/world"
 const replicator = require "@self/replicator"
 const requestPackets = require "@self/utils/request_packets"
+const schedule = require "@game/ReplicatedStorage/shared/ecs/schedule"
+const world = require "@game/ReplicatedStorage/shared/world"
 const systems = script.systems
 const sharedSystems = ReplicatedStorage.shared.systems
 
@@ -25,6 +25,7 @@ schedule(world,
 
     systems.car.controller,
     systems.car.render,
+    systems.car.update_stats,
 
     systems.camera.player,
     systems.camera.update

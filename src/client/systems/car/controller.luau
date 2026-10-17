@@ -1,15 +1,15 @@
 const Workspace = game:GetService "Workspace"
 
-const jecs = require "@game/ReplicatedStorage/packages/jecs"
+const action = require "@game/ReplicatedStorage/shared/utils/input/action"
+const carUtil = require "../../utils/car"
 const ct = require "@game/ReplicatedStorage/shared/components"
 const fixed_update = require "@game/ReplicatedStorage/shared/ecs/fixed_update"
-const presets = require "@game/ReplicatedStorage/shared/presets/car"
-const inputs = require "../../inputs"
 const force = require "@game/ReplicatedStorage/shared/utils/force"
-const action = require "@game/ReplicatedStorage/shared/utils/input/action"
+const inputs = require "../../inputs"
+const jecs = require "@game/ReplicatedStorage/packages/jecs"
+const presets = require "@game/ReplicatedStorage/shared/presets/car"
+const simulation = require "@game/ReplicatedStorage/shared/ecs/simulation"
 const vector3Util = require "@game/ReplicatedStorage/shared/utils/vector3_util"
-const sources = require "../../ui/sources"
-const carUtil = require "../../utils/car"
 
 const pair = jecs.pair
 const ChildOf = jecs.ChildOf
@@ -51,7 +51,7 @@ const function calculateDrivingForce(
         drivingForce = math.abs(longVelocity) < 0.25 and -longVelocity or -longVelocityDir * acceleration.coasting
     elseif longInput ~= 0 then
         if longInputDir == longVelocityDir or longVelocityDir == 0 then
-            const throttle = curve.throttle:evaluate(math.abs(longVelocity) / limits.throttle)
+            const throttle = curve.throttle(math.abs(longVelocity) / limits.throttle)
                 * (longInput >= 0 and acceleration.throttle or acceleration.reverse)
             drivingForce = throttle * longInputDir
         else
@@ -161,7 +161,7 @@ const function system(world: jecs.World)
             const relaxationLength = 0.055
             const slipAngle = getSlipAngleRatio(latVelocity, longVelocity)
 
-            const latSlipTarget = curve.friction:evaluate(slipAngle) * -math.sign(latVelocity)
+            const latSlipTarget = curve.friction(slipAngle) * -math.sign(latVelocity)
             const latCoefficient = math.clamp(math.abs(latVelocity) / relaxationLength * dt, 0, 1)
 
             -- integrate towards target friction value
@@ -219,8 +219,6 @@ const function system(world: jecs.World)
             const targetBoost = math.max(boost - 40 * dt, 0)
             world:set(car, ct.Boost, targetBoost)
             force.add(hitbox, hitboxTransform.LookVector * boostForce, hitbox.Position, force.Mode.Acceleration)
-
-            sources.car.boost(targetBoost)
         end
     elseif boostReleased then
         world:set(car, pair(ct.Timer, ct.Boost), {
@@ -231,8 +229,6 @@ const function system(world: jecs.World)
     elseif not world:has(car, pair(ct.Timer, ct.Boost)) then
         const targetBoost = math.min(boost + 10 * dt, 100)
         world:set(car, ct.Boost, targetBoost)
-
-        sources.car.boost(targetBoost)
     end
 
     -- limit velocity
@@ -242,5 +238,5 @@ end
 return {
     name = "car/controller",
     system = system,
-    phase = fixed_update.Phases.FixedUpdate,
+    phase = simulation.Phases.Simulation60Hz,
 }
