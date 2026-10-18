@@ -1,7 +1,5 @@
 const ReplicatedStorage = game:GetService "ReplicatedStorage"
 
-const curve = require "@game/ReplicatedStorage/shared/utils/curve"
-
 export type WheelSpring = {
     stiffness: number,
     damping: number,
@@ -48,7 +46,7 @@ export type CarPreset = {
     },
 }
 
--- hardcoded using desmos lol
+-- hardcoded using desmos lol, recent update made floatcurves stop working inside BindToSimulation
 const function throttle(value: number): number
     if value >= 0 and value <= 0.8 then
         return -1.125 * value + 1
@@ -68,7 +66,7 @@ end
 const presets: { [string]: CarPreset } = {
     default = {
         model = ReplicatedStorage.assets.cars.truck,
-        hitbox = Vector3.new(4, 2, 6),
+        hitbox = Vector3.new(4, 3, 6),
         mass = 400,
         turnRadius = 12,
         wheelWidth = 0.75,

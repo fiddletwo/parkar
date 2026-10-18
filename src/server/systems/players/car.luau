@@ -1,21 +1,23 @@
 const Workspace = game:GetService "Workspace"
 
+const carModel = require "@game/ReplicatedStorage/shared/utils/car/model"
+const ct = require "@game/ReplicatedStorage/shared/components"
 const jecs = require "@game/ReplicatedStorage/packages/jecs"
 const planck_runservice = require "@game/ReplicatedStorage/packages/planck-runservice"
-const replicator = require "../../replicator"
-const ct = require "@game/ReplicatedStorage/shared/components"
 const presets = require "@game/ReplicatedStorage/shared/presets/car"
-const carModel = require "@game/ReplicatedStorage/shared/utils/car/model"
+const replicator = require "../../replicator"
 
 const pair = jecs.pair
 const Wildcard = jecs.Wildcard
 const ChildOf = jecs.ChildOf
 
 const function system(world: jecs.World)
-    const needsCar = world:query(ct.Player):without(pair(ct.Car, Wildcard)):cached()
+    const needsCar = world:query(ct.Player, ct.Spawn):without(pair(ct.Car, Wildcard)):cached()
 
     return function()
-        for id, player in needsCar do
+        for id, player, spawnTransform in needsCar do
+            world:remove(id, ct.Spawn)
+
             const car = world:entity()
             replicator:set_networked(car)
 
@@ -28,6 +30,8 @@ const function system(world: jecs.World)
                 const model = carModel.create(preset)
                 model.Name = player.Name
                 model.Parent = Workspace.Cars
+
+                model:PivotTo(spawnTransform)
 
                 model.Hitbox:SetNetworkOwner(player)
 

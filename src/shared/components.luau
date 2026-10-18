@@ -1,8 +1,8 @@
+const _presets = require "./presets/car"
+const ecs = require "./utils/ecs"
+const jecs = require "@game/ReplicatedStorage/packages/jecs"
 const jecs_utils = require "@game/ReplicatedStorage/packages/jecs-utils"
 const replecs = require "@game/ReplicatedStorage/packages/replecs"
-const _presets = require "./presets/car"
-const jecs = require "@game/ReplicatedStorage/packages/jecs"
-const ecs = require "./utils/ecs"
 const world = require "./world"
 
 export type Timer = {
@@ -28,6 +28,7 @@ const components = {
     Car = world:entity(),
     CarPreset = world:component<<_presets.PresetName>>(),
     CarOf = world:entity(),
+    Spawn = world:component<<CFrame>>(),
     Wheel = world:entity(),
     WheelSpring = world:component<<_presets.WheelSpring>>(),
     Boost = world:component<<number>>(),
@@ -39,6 +40,7 @@ const components = {
     Transform = world:component<<CFrame>>(),
     Position = world:component<<Vector3>>(),
     Orientation = world:component<<Vector3>>(),
+    Rotation = world:component<<number>>(),
     Friction = world:component<<number>>(),
     Length = world:component<<number>>(),
 
@@ -48,6 +50,7 @@ const components = {
     -- Time
     Timer = world:component<<Timer>>(),
     Debounce = world:entity(),
+    Countdown = world:entity(),
 
     -- Camera
     ActiveCamera = world:component<<jecs.Entity>>(),
