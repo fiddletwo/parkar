@@ -3,6 +3,7 @@ const Workspace = game:GetService "Workspace"
 
 const ct = require "@game/ReplicatedStorage/shared/components"
 const jecs = require "@game/ReplicatedStorage/packages/jecs"
+const network = require "../network"
 const planck_runservice = require "@game/ReplicatedStorage/packages/planck-runservice"
 const scheduler = require "@game/ReplicatedStorage/shared/ecs/scheduler"
 
@@ -17,7 +18,18 @@ const function system(world: jecs.World)
         spawns[i] = spawn.WorldCFrame
     end
 
+    const countdownTime = 5
+    const roundTime = 3 * 60
+
     local currentRound: jecs.Entity
+
+    const function startRound(round: jecs.Entity)
+        world:set(round, pair(ct.Timer, ct.Time), {
+            start = os.clock(),
+            duration = roundTime,
+            repeats = false,
+        })
+    end
 
     return function()
         if world:each(ct.Player)() == nil then
@@ -26,6 +38,7 @@ const function system(world: jecs.World)
 
         if currentRound == nil then
             currentRound = world:entity()
+
             world:set(currentRound, ct.Rotation, 90)
 
             local i = 1
@@ -36,9 +49,18 @@ const function system(world: jecs.World)
 
             world:set(currentRound, pair(ct.Timer, ct.Countdown), {
                 start = os.clock(),
-                duration = 5,
+                duration = countdownTime,
                 repeats = false,
+                callback = function()
+                    startRound(currentRound)
+                end,
             })
+
+            const now = Workspace:GetServerTimeNow()
+            network.Game.SendRoundInfo.fireAll {
+                countdown = now + countdownTime,
+                round = now + countdownTime + roundTime,
+            }
         end
 
         if world:has(currentRound, pair(ct.Timer, ct.Countdown)) then

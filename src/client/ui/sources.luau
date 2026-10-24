@@ -6,4 +6,8 @@ return {
     car = {
         boost = source(100),
     },
+    game = {
+        countdown = source(0),
+        round = source(0),
+    },
 }

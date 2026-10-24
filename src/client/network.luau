@@ -160,13 +160,24 @@ local Queue: any = {
 
 local SerdesEvent = "?"
 local SerdesThread: thread?
-Queue.Reliable[0] = table.create(256)
-Queue.Reliable[1] = CreateQueue()
+Queue.Reliable[0] = CreateQueue()
+Queue.Reliable[1] = table.create(256)
+Queue.Reliable[2] = CreateQueue()
 Queue.Unreliable[0] = CreateQueue()
+export type Game_RoundInfo = { countdown: number, round: number }
+function SerdesFunctions.Game_ReadEVENT_SendRoundInfo(): ({ countdown: number, round: number })
+	-- Read BLOCK: 16 bytes
+	local BLOCK_START = Read(16)
+	local Value = {} :: any
+	Value.countdown = buffer.readf64(RecieveBuffer, BLOCK_START + 0)
+	Value.round = buffer.readf64(RecieveBuffer, BLOCK_START + 8)
+	return Value
+end
+
 function SerdesFunctions.EntityReplication_WriteFUNCTION_DATA_RequestInitialPackets(Value: nil, InvocationIdentifier: number): ()
 	-- Allocate BLOCK: 2 bytes
 	local BLOCK_START = Allocate(2)
-	buffer.writeu8(SendBuffer, BLOCK_START + 0, 0)
+	buffer.writeu8(SendBuffer, BLOCK_START + 0, 1)
 	buffer.writeu8(SendBuffer, BLOCK_START + 1, InvocationIdentifier)
 end
 
@@ -215,6 +226,12 @@ end
 if not RunService:IsRunning() then
 	local NOOP = function() end
 	local Returns = table.freeze({
+	Game = {
+		SendRoundInfo = {
+			iter = NOOP,
+			next = NOOP
+		},
+	},
 	EntityReplication = {
 		RequestInitialPackets = {
 			invoke = NOOP
@@ -271,6 +288,8 @@ Reliable.OnClientEvent:Connect(function(Buffer: buffer, Instances: {Instance})
 		local BLOCK_START = Read(1)
 		local Index = buffer.readu8(RecieveBuffer, BLOCK_START + 0)
 		if Index == 0 then
+			Push(Queue.Reliable[0], table.pack(SerdesFunctions.Game_ReadEVENT_SendRoundInfo()))
+		elseif Index == 1 then
 			-- Read BLOCK: 1 bytes
 			local BLOCK_START = Read(1)
 			local InvocationIdentifier = buffer.readu8(RecieveBuffer, BLOCK_START + 0)
@@ -281,8 +300,8 @@ Reliable.OnClientEvent:Connect(function(Buffer: buffer, Instances: {Instance})
 				task.spawn(Calls[InvocationIdentifier], Success, ReturnValue1, ReturnValue2)
 				Calls[InvocationIdentifier] = nil
 			end
-		elseif Index == 1 then
-			Push(Queue.Reliable[1], table.pack(SerdesFunctions.EntityReplication_ReadEVENT_SendReliable()))
+		elseif Index == 2 then
+			Push(Queue.Reliable[2], table.pack(SerdesFunctions.EntityReplication_ReadEVENT_SendReliable()))
 		end
 	end
 end)
@@ -311,6 +330,35 @@ end)
 local Returns = table.freeze({
 	stepReplication = StepReplication,
 
+	Game = {
+		SendRoundInfo = {
+			iter = function(): () -> (number, { countdown: number, round: number })
+				local index = 0
+				local queue = Queue.Reliable[0]
+				return function (): (number, { countdown: number, round: number })
+					index += 1
+					local arguments = Pop(queue)
+					if arguments ~= nil then
+						return index, unpack(arguments, 1, arguments.n)
+					end
+					return 
+				end
+			end,
+			--- @deprecated v0.14.1 -- Use `Iter` instead.
+			next = function(): () -> (number, { countdown: number, round: number })
+				local index = 0
+				local queue = Queue.Reliable[0]
+				return function (): (number, { countdown: number, round: number })
+					index += 1
+					local arguments = Pop(queue)
+					if arguments ~= nil then
+						return index, unpack(arguments, 1, arguments.n)
+					end
+					return 
+				end
+			end
+		},
+	},
 	EntityReplication = {
 		RequestInitialPackets = {
 			invoke = function(Value: nil): (buffer?, any)
@@ -331,7 +379,7 @@ local Returns = table.freeze({
 		SendReliable = {
 			iter = function(): () -> (number, buffer, any)
 				local index = 0
-				local queue = Queue.Reliable[1]
+				local queue = Queue.Reliable[2]
 				return function (): (number, buffer, any)
 					index += 1
 					local arguments = Pop(queue)
@@ -344,7 +392,7 @@ local Returns = table.freeze({
 			--- @deprecated v0.14.1 -- Use `Iter` instead.
 			next = function(): () -> (number, buffer, any)
 				local index = 0
-				local queue = Queue.Reliable[1]
+				local queue = Queue.Reliable[2]
 				return function (): (number, buffer, any)
 					index += 1
 					local arguments = Pop(queue)

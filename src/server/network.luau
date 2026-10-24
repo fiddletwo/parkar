@@ -161,7 +161,16 @@ local Queue: any = {
 
 local SerdesEvent = "?"
 local SerdesThread: thread?
-Queue.Reliable[0] = table.create(256)
+Queue.Reliable[1] = table.create(256)
+export type Game_RoundInfo = { countdown: number, round: number }
+function SerdesFunctions.Game_WriteEVENT_SendRoundInfo(Value: { countdown: number, round: number }): ()
+	-- Allocate BLOCK: 17 bytes
+	local BLOCK_START = Allocate(17)
+	buffer.writeu8(SendBuffer, BLOCK_START + 0, 0)
+	buffer.writef64(SendBuffer, BLOCK_START + 1, Value.countdown)
+	buffer.writef64(SendBuffer, BLOCK_START + 9, Value.round)
+end
+
 function SerdesFunctions.EntityReplication_ReadFUNCTION_DATA_RequestInitialPackets(): (nil)
 	return Value
 end
@@ -169,7 +178,7 @@ end
 function SerdesFunctions.EntityReplication_WriteFUNCTION_RETURN_RequestInitialPackets(Value1: buffer?, Value2: any, InvocationIdentifier: number): ()
 	-- Allocate BLOCK: 4 bytes
 	local BLOCK_START = Allocate(4)
-	buffer.writeu8(SendBuffer, BLOCK_START + 0, 0)
+	buffer.writeu8(SendBuffer, BLOCK_START + 0, 1)
 	buffer.writeu8(SendBuffer, BLOCK_START + 1, InvocationIdentifier)
 	buffer.writeu8(SendBuffer, BLOCK_START + 2, 1)
 	buffer.writeu8(SendBuffer, BLOCK_START + 3, Value1 ~= nil and 1 or 0)
@@ -187,7 +196,7 @@ end
 function SerdesFunctions.EntityReplication_WriteEVENT_SendReliable(Value1: buffer, Value2: any): ()
 	-- Allocate BLOCK: 3 bytes
 	local BLOCK_START = Allocate(3)
-	buffer.writeu8(SendBuffer, BLOCK_START + 0, 1)
+	buffer.writeu8(SendBuffer, BLOCK_START + 0, 2)
 	local Length = buffer.len(Value1)
 	buffer.writeu16(SendBuffer, BLOCK_START + 1, Length)
 	Allocate(Length)
@@ -209,6 +218,14 @@ end
 if not RunService:IsRunning() then
 	local NOOP = function() end
 	local Returns = table.freeze({
+	Game = {
+		SendRoundInfo = {
+			fire = NOOP,
+			fireAll = NOOP,
+			fireList = NOOP,
+			fireExcept = NOOP
+		},
+	},
 	EntityReplication = {
 		RequestInitialPackets = {
 			on = NOOP
@@ -288,18 +305,18 @@ Reliable.OnServerEvent:Connect(function(Player: Player, Buffer: buffer, Instance
 		-- Read BLOCK: 1 bytes
 		local BLOCK_START = Read(1)
 		local Index = buffer.readu8(RecieveBuffer, BLOCK_START + 0)
-		if Index == 0 then
+		if Index == 1 then
 			-- Read BLOCK: 1 bytes
 			local BLOCK_START = Read(1)
 			local InvocationIdentifier = buffer.readu8(RecieveBuffer, BLOCK_START + 0)
 			local Value: nil = SerdesFunctions.EntityReplication_ReadFUNCTION_DATA_RequestInitialPackets()
-			if Events.Reliable[0] ~= nil then
-				task.spawn(Events.Reliable[0], Player, Value, InvocationIdentifier)
+			if Events.Reliable[1] ~= nil then
+				task.spawn(Events.Reliable[1], Player, Value, InvocationIdentifier)
 			else
-				if #Queue.Reliable[0] > 256 then
+				if #Queue.Reliable[1] > 256 then
 					warn("[Blink]: Event queue of \"RequestInitialPackets\" exceeded 256, did you forget to implement a listener?")
 				end
-				table.insert(Queue.Reliable[0], {Player, Value, InvocationIdentifier} :: {any})
+				table.insert(Queue.Reliable[1], {Player, Value, InvocationIdentifier} :: {any})
 			end
 		end
 	end
@@ -326,10 +343,58 @@ end)
 local Returns = table.freeze({
 	stepReplication = StepReplication,
 
+	Game = {
+		SendRoundInfo = {
+			fire = function(Player: Player, Value: { countdown: number, round: number }): ()
+				Load(PlayersMap[Player])
+				SerdesFunctions.Game_WriteEVENT_SendRoundInfo(Value)
+				PlayersMap[Player] = Save()
+			end,
+			fireAll = function(Value: { countdown: number, round: number }): ()
+				Load()
+				SerdesFunctions.Game_WriteEVENT_SendRoundInfo(Value)
+				local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
+				for _, Player in Players:GetPlayers() do
+					Load(PlayersMap[Player])
+					local Position = Allocate(Size)
+					buffer.copy(SendBuffer, Position, Buffer, 0, Size)
+					table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
+					PlayersMap[Player] = Save()
+				end
+			end,
+			fireList = function(List: {Player}, Value: { countdown: number, round: number }): ()
+				Load()
+				SerdesFunctions.Game_WriteEVENT_SendRoundInfo(Value)
+				local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
+				for _, Player in List do
+					Load(PlayersMap[Player])
+					local Position = Allocate(Size)
+					buffer.copy(SendBuffer, Position, Buffer, 0, Size)
+					table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
+					PlayersMap[Player] = Save()
+				end
+			end,
+			fireExcept = function(Except: Player, Value: { countdown: number, round: number }): ()
+				Load()
+				SerdesFunctions.Game_WriteEVENT_SendRoundInfo(Value)
+				local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
+				for _, Player in Players:GetPlayers() do
+					if Player == Except then
+						continue
+					end
+					Load(PlayersMap[Player])
+					local Position = Allocate(Size)
+					buffer.copy(SendBuffer, Position, Buffer, 0, Size)
+					table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
+					PlayersMap[Player] = Save()
+				end
+			end,
+		},
+	},
 	EntityReplication = {
 		RequestInitialPackets = {
 		on = function(Listener: (Player, nil) -> (buffer?, any)): ()
-			Events.Reliable[0] = function(Player: Player, Value: nil, InvocationIdentifier: number): ()
+			Events.Reliable[1] = function(Player: Player, Value: nil, InvocationIdentifier: number): ()
 				local ReturnValue1: buffer?, ReturnValue2: any;
 				local Success, Error = pcall(function ()
 					ReturnValue1, ReturnValue2 = Listener(Player, Value)
@@ -337,7 +402,7 @@ local Returns = table.freeze({
 				Load(PlayersMap[Player])
 				if Success ~= true then
 					local Position = Allocate(3)
-					buffer.writeu8(SendBuffer, Position, 0)
+					buffer.writeu8(SendBuffer, Position, 1)
 					buffer.writeu8(SendBuffer, Position + 1, InvocationIdentifier)
 					buffer.writeu8(SendBuffer, Position + 2, 0)
 					warn(`"RequestInitialPackets" encountered an error, {Error}`)
@@ -347,10 +412,10 @@ local Returns = table.freeze({
 				PlayersMap[Player] = Save()
 			end
 			task.spawn(function (): ()
-				local EventQueue = Queue.Reliable[0] or {}
-				Queue.Reliable[0] = nil
+				local EventQueue = Queue.Reliable[1] or {}
+				Queue.Reliable[1] = nil
 				for Index, Arguments in EventQueue do
-					Events.Reliable[0](table.unpack(Arguments))
+					Events.Reliable[1](table.unpack(Arguments))
 				end
 			end)
 		end

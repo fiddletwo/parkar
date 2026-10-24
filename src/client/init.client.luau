@@ -28,7 +28,9 @@ schedule(world,
     systems.car.update_stats,
 
     systems.camera.player,
-    systems.camera.update
+    systems.camera.update,
+
+    systems.game
 )
 -- stylua: ignore end
 requestPackets()

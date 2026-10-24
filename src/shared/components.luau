@@ -9,6 +9,7 @@ export type Timer = {
     start: number,
     duration: number,
     repeats: boolean,
+    callback: (() -> ())?,
 }
 
 const pair = jecs.pair
@@ -51,6 +52,8 @@ const components = {
     Timer = world:component<<Timer>>(),
     Debounce = world:entity(),
     Countdown = world:entity(),
+    Interval = world:entity(),
+    Time = world:entity(),
 
     -- Camera
     ActiveCamera = world:component<<jecs.Entity>>(),

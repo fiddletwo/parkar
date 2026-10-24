@@ -1,6 +1,6 @@
+const ct = require "../components"
 const jecs = require "@game/ReplicatedStorage/packages/jecs"
 const planck_runservice = require "@game/ReplicatedStorage/packages/planck-runservice"
-const ct = require "../components"
 
 const pair = jecs.pair
 const Wildcard = jecs.Wildcard
@@ -21,6 +21,10 @@ const function system(world: jecs.World)
 
                 const timer = world:get(id, pair(ct.Timer, t)) :: ct.Timer
                 if (timer.start + timer.duration) < now then
+                    if timer.callback then
+                        timer.callback()
+                    end
+
                     if timer.repeats then
                         timer.start += timer.duration
                     else

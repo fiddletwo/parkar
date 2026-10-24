@@ -2,4 +2,5 @@ option ClientOutput = "../client/network.luau"
 option ServerOutput = "../server/network.luau"
 option Casing = Camel
 
+import "./game.blink" as Game
 import "./replecs.blink" as EntityReplication

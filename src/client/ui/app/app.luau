@@ -1,6 +1,7 @@
-const vide = require "@game/ReplicatedStorage/packages/vide"
 const Hud = require "./routes/hud"
+const Round = require "./routes/round"
 const rem = require "../utils/rem"
+const vide = require "@game/ReplicatedStorage/packages/vide"
 const create = vide.create
 
 const function App()
@@ -11,6 +12,7 @@ const function App()
         IgnoreGuiInset = true,
 
         Hud(),
+        Round(),
     }
 end
 
