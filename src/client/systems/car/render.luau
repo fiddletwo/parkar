@@ -1,10 +1,10 @@
 const Workspace = game:GetService "Workspace"
 
+const carUtil = require "../../utils/car"
+const ct = require "@game/ReplicatedStorage/shared/components"
 const jecs = require "@game/ReplicatedStorage/packages/jecs"
 const planck_runservice = require "@game/ReplicatedStorage/packages/planck-runservice"
-const ct = require "@game/ReplicatedStorage/shared/components"
 const presets = require "@game/ReplicatedStorage/shared/presets/car"
-const carModel = require "@game/ReplicatedStorage/shared/utils/car/model"
 
 const pair = jecs.pair
 const ChildOf = jecs.ChildOf
@@ -61,7 +61,7 @@ const function system(world: jecs.World)
 
         for id, spring, offset, wheel: Model & { Anchor: Part } in wheels do
             const parent = world:parent(id) :: jecs.Entity
-            const car: carModel.Car? = world:get(parent, ct.Renderable)
+            const car = carUtil.model(parent)
 
             if not car then
                 continue

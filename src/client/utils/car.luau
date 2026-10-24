@@ -1,11 +1,11 @@
 const Players = game:GetService "Players"
 const Workspace = game:GetService "Workspace"
 
+const carModel = require "@game/ReplicatedStorage/shared/utils/car/model"
+const ct = require "@game/ReplicatedStorage/shared/components"
 const jecs = require "@game/ReplicatedStorage/packages/jecs"
 const jecs_utils = require "@game/ReplicatedStorage/packages/jecs-utils"
-const ct = require "@game/ReplicatedStorage/shared/components"
 const presets = require "@game/ReplicatedStorage/shared/presets/car"
-const carModel = require "@game/ReplicatedStorage/shared/utils/car/model"
 const world = require "@game/ReplicatedStorage/shared/world"
 
 const ref = jecs_utils.ref
@@ -23,7 +23,14 @@ end
 const function getLocalCarModel(id: jecs.Entity?): carModel.Car?
     const car = id or getLocalCar()
 
-    return car and world:get(car, ct.Renderable) or nil
+    if car then
+        const model = world:get(car, ct.Renderable)
+        if model and model:FindFirstChild "Hitbox" then
+            return model
+        end
+    end
+
+    return nil
 end
 
 const function getRaycastParams(id: jecs.Entity): RaycastParams
