@@ -9,7 +9,12 @@ local previousBoost = 100
 const function system(world: jecs.World)
     const car = carUtil.get()
     if not car then
+        sources.car.alive(false)
         return
+    end
+
+    if not sources.car.alive() then
+        sources.car.alive(true)
     end
 
     const boost = world:get(car, ct.Boost) or 100

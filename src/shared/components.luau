@@ -49,11 +49,13 @@ const components = {
     RaycastParams = world:component<<RaycastParams>>(),
 
     -- Time
+    Timestamp = world:component<<number>>(),
     Timer = world:component<<Timer>>(),
     Debounce = world:entity(),
     Countdown = world:entity(),
     Interval = world:entity(),
     Time = world:entity(),
+    Round = world:entity(),
 
     -- Camera
     ActiveCamera = world:component<<jecs.Entity>>(),

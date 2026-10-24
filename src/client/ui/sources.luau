@@ -4,6 +4,7 @@ const source = vide.source
 
 return {
     car = {
+        alive = source(false),
         boost = source(100),
     },
     game = {

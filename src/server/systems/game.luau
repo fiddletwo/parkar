@@ -3,8 +3,8 @@ const Workspace = game:GetService "Workspace"
 
 const ct = require "@game/ReplicatedStorage/shared/components"
 const jecs = require "@game/ReplicatedStorage/packages/jecs"
-const network = require "../network"
 const planck_runservice = require "@game/ReplicatedStorage/packages/planck-runservice"
+const replicator = require "../replicator"
 const scheduler = require "@game/ReplicatedStorage/shared/ecs/scheduler"
 
 const pair = jecs.pair
@@ -18,12 +18,18 @@ const function system(world: jecs.World)
         spawns[i] = spawn.WorldCFrame
     end
 
-    const countdownTime = 5
+    const countdownTime = 15
     const roundTime = 3 * 60
 
     local currentRound: jecs.Entity
 
     const function startRound(round: jecs.Entity)
+        local i = 1
+        for id in world:each(ct.Player) do
+            world:set(id, ct.Spawn, spawns[i])
+            i += 1
+        end
+
         world:set(round, pair(ct.Timer, ct.Time), {
             start = os.clock(),
             duration = roundTime,
@@ -38,14 +44,8 @@ const function system(world: jecs.World)
 
         if currentRound == nil then
             currentRound = world:entity()
-
+            replicator:set_networked(currentRound)
             world:set(currentRound, ct.Rotation, 90)
-
-            local i = 1
-            for id in world:each(ct.Player) do
-                world:set(id, ct.Spawn, spawns[i])
-                i += 1
-            end
 
             world:set(currentRound, pair(ct.Timer, ct.Countdown), {
                 start = os.clock(),
@@ -57,10 +57,11 @@ const function system(world: jecs.World)
             })
 
             const now = Workspace:GetServerTimeNow()
-            network.Game.SendRoundInfo.fireAll {
-                countdown = now + countdownTime,
-                round = now + countdownTime + roundTime,
-            }
+
+            world:set(currentRound, pair(ct.Timestamp, ct.Countdown), now + countdownTime)
+            world:set(currentRound, pair(ct.Timestamp, ct.Round), now + countdownTime + roundTime)
+
+            replicator:set_relation(currentRound, ct.Timestamp)
         end
 
         if world:has(currentRound, pair(ct.Timer, ct.Countdown)) then

@@ -27,7 +27,7 @@ const function Round()
         const timeLeft = roundTime()
         const minutes = math.floor(timeLeft / 60)
         const seconds = math.floor(timeLeft % 60)
-        return `{minutes}:{seconds}`
+        return string.format("%i:%02i", minutes, seconds)
     end
 
     effect(function()
