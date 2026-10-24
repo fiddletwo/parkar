@@ -19,7 +19,9 @@ const function Round()
     const roundTime = source(0)
 
     const formattedCountdownTime = function()
-        return `Round starts in {math.ceil(countdownTime())} seconds`
+        const timeLeft = countdownTime()
+        const seconds = math.ceil(timeLeft)
+        return `Round starts in {seconds} second{seconds > 1 and "s" or ""}`
     end
     const formattedRoundTime = function()
         const timeLeft = roundTime()
