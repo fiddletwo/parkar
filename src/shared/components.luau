@@ -56,6 +56,7 @@ const components = {
     Interval = world:entity(),
     Time = world:entity(),
     Round = world:entity(),
+    One = world:entity(),
 
     -- Camera
     ActiveCamera = world:component<<jecs.Entity>>(),

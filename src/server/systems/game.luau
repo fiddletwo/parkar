@@ -15,15 +15,32 @@ const function system(world: jecs.World)
     const map = ReplicatedStorage.assets.map.jump_showdown:Clone()
     map.Parent = Workspace
 
+    const firstHighlight = Instance.new "Highlight"
+    const secondHighlight = Instance.new "Highlight"
+
+    firstHighlight.DepthMode = Enum.HighlightDepthMode.Occluded
+    secondHighlight.DepthMode = Enum.HighlightDepthMode.Occluded
+
+    firstHighlight.Enabled = false
+    secondHighlight.Enabled = false
+
+    firstHighlight.Parent = map
+    secondHighlight.Parent = map
+
     const spawns = {}
     for i, spawn in map.Spawns:QueryDescendants "Attachment" do
         spawns[i] = spawn.WorldCFrame
     end
 
+    const platforms = {}
+    for i, platform in map.Octants:QueryDescendants "BasePart" do
+        platforms[i] = platform
+    end
+
     const cars = world:query(ct.Renderable):with(pair(ct.CarOf, Wildcard)):cached()
 
     const countdownTime = 10
-    const roundTime = 3 * 60
+    const roundTime = 2 * 60
     const deathZone = map.WorldPivot.Position.Y - 80
 
     local currentRound: jecs.Entity?
@@ -46,8 +63,47 @@ const function system(world: jecs.World)
                         world:delete(id)
                     end
 
+                    for i, platform in platforms do
+                        platform.Transparency = 0
+                        platform.CanQuery = true
+                        platform.CanCollide = true
+                    end
+
+                    firstHighlight.Enabled = false
+                    secondHighlight.Enabled = false
+
                     world:delete(round)
                     currentRound = nil
+                end,
+            })
+
+            world:set(round, pair(ct.Timer, ct.One), {
+                start = os.clock(),
+                duration = roundTime / 2.75,
+                repeats = true,
+                callback = function()
+                    const random = math.random(1, 4)
+                    const firstPlatform = platforms[random]
+                    const secondPlatform = platforms[random + 4]
+
+                    firstHighlight.Parent = firstPlatform
+                    secondHighlight.Parent = secondPlatform
+
+                    firstHighlight.Enabled = true
+                    secondHighlight.Enabled = true
+
+                    task.delay(3, function()
+                        firstPlatform.Transparency = 1
+                        firstPlatform.CanCollide = false
+                        firstPlatform.CanQuery = false
+
+                        secondPlatform.Transparency = 1
+                        secondPlatform.CanCollide = false
+                        secondPlatform.CanQuery = false
+
+                        firstHighlight.Enabled = false
+                        secondHighlight.Enabled = false
+                    end)
                 end,
             })
         end)
@@ -115,6 +171,14 @@ const function system(world: jecs.World)
             if carsLeft == 0 then
                 world:delete(currentRound)
                 currentRound = nil
+
+                for i, platform in platforms do
+                    platform.Transparency = 0
+                    platform.CanCollide = true
+                end
+
+                firstHighlight.Enabled = false
+                secondHighlight.Enabled = false
             end
         end
     end
