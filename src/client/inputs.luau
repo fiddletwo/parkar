@@ -17,10 +17,10 @@ const inputs = {
         input1D = input.input1D(Enum.KeyCode.E, Enum.KeyCode.Q),
     },
     boost = {
-        keycodes = { Enum.KeyCode.MouseLeftButton },
+        keycodes = { Enum.KeyCode.MouseLeftButton, Enum.KeyCode.LeftShift },
     },
     jump = {
-        keycodes = { Enum.KeyCode.MouseRightButton },
+        keycodes = { Enum.KeyCode.MouseRightButton, Enum.KeyCode.Space },
     },
 }
 
