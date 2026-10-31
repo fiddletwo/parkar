@@ -1,29 +1,32 @@
 const UserInputService = game:GetService "UserInputService"
 const Workspace = game:GetService "Workspace"
 
+const action = require "@game/ReplicatedStorage/shared/utils/input/action"
+const car = require "../../utils/car"
+const config = require "../../config/player"
+const ct = require "@game/ReplicatedStorage/shared/components"
+const inputs = require "../../inputs"
 const jecs = require "@game/ReplicatedStorage/packages/jecs"
 const planck_runservice = require "@game/ReplicatedStorage/packages/planck-runservice"
-const inputs = require "../../inputs"
-const car = require "../../utils/car"
-const ct = require "@game/ReplicatedStorage/shared/components"
 const scheduler = require "@game/ReplicatedStorage/shared/ecs/scheduler"
-const config = require "../../config/player"
-const action = require "@game/ReplicatedStorage/shared/utils/input/action"
 
 const userSettings = UserSettings():GetService "UserGameSettings"
 
 const params = RaycastParams.new()
 params.ExcludeInstances = { Workspace.RaycastIgnore, Workspace.Cars }
 
+const defaultCameraPosition = Vector3.new(85, 45, -100)
+const defaultCamera = CFrame.new(defaultCameraPosition, Vector3.new(-0.57, -0.44, 0.69))
+
 const function system(world: jecs.World)
-    local camera = world:get(ct.PlayerCamera, ct.PlayerCamera)
+    local camera = world:get(ct.PlayerCamera, ct.PlayerCamera) :: jecs.Entity
     if not camera then
         const id = world:entity()
         world:add(id, ct.Camera)
-        world:set(id, ct.FieldOfView, 80)
+        world:set(id, ct.FieldOfView, 70)
         world:set(id, ct.CameraType, Enum.CameraType.Scriptable)
         world:set(id, ct.Orientation, Vector3.zero)
-        world:set(id, ct.Transform, CFrame.identity)
+        world:set(id, ct.Transform, defaultCamera)
 
         world:set(ct.PlayerCamera, ct.PlayerCamera, id)
         camera = id
@@ -31,6 +34,7 @@ const function system(world: jecs.World)
 
     const carModel = car.model()
     if not carModel or carModel.Parent == nil or not carModel:FindFirstChild "Hitbox" then
+        world:set(camera, ct.Transform, defaultCamera)
         return
     end
 
