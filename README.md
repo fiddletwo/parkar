@@ -18,13 +18,11 @@ Once downloaded, the game file can be ran via Roblox Studio.
 > Note that only playing on PC is supported for now
 
 ## Game Controls
-```
-WASD - Car controls, on the ground and in the air
-Q/E - Roll the car left or right
-Space/Right Mouse - Jump
-Left Shift/Left Mouse - Boost
-Left Ctrl - Camera lock
-```
+**WASD** - Car controls, on the ground and in the air\
+**Q/E** - Roll the car left or right\
+**Space/Right Mouse** - Jump\
+**Left Shift/Left Mouse** - Boost\
+**Left Ctrl** - Camera lock
 
 ## License
 Parkar is released under the MIT License.
