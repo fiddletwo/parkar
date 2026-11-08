@@ -1,5 +1,9 @@
 # Parkar
 A game on Roblox with car physics and aerial vehicle controls, alongside a fun little minigame.
+
+The difficulty ramps up as platforms start to disappear.
+
+---
 ![](thumbnail.png)
 
 ## Features
@@ -19,4 +23,8 @@ WASD - Car controls, on the ground and in the air
 Q/E - Roll the car left or right
 Space/Right Mouse - Jump
 Left Shift/Left Mouse - Boost
+Left Ctrl - Camera lock
 ```
+
+## License
+Parkar is released under the MIT License.
