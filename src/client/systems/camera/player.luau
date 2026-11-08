@@ -29,6 +29,11 @@ const function system(world: jecs.World)
         world:set(id, ct.Transform, defaultCamera)
 
         world:set(ct.PlayerCamera, ct.PlayerCamera, id)
+
+        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+        UserInputService.MouseIconEnabled = false
+        world:add(id, ct.Locked)
+
         camera = id
     end
 
