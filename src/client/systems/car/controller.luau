@@ -231,6 +231,12 @@ const function system(world: jecs.World)
         world:set(car, ct.Boost, targetBoost)
     end
 
+    if action(inputs.flip) and hitboxTransform.UpVector.Y < 0.1 then
+        const x, y = hitboxTransform:ToOrientation()
+
+        hitbox.CFrame = CFrame.Angles(x, y, 0) + hitboxTransform.Position + Vector3.new(0, 2, 0)
+    end
+
     -- limit velocity
     hitbox.AssemblyLinearVelocity = hitboxLinearVel.Unit * math.min(hitboxLinearVel.Magnitude, limits.max)
 end

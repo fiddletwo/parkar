@@ -22,6 +22,9 @@ const inputs = {
     jump = {
         keycodes = { Enum.KeyCode.MouseRightButton, Enum.KeyCode.Space },
     },
+    flip = {
+        keycodes = { Enum.KeyCode.F },
+    },
 }
 
 return input.read("GameplayContext", inputs)
