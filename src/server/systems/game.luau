@@ -79,7 +79,7 @@ const function system(world: jecs.World)
 
             world:set(round, pair(ct.Timer, ct.One), {
                 start = os.clock(),
-                duration = roundTime / 2.75,
+                duration = roundTime * 0.6,
                 repeats = true,
                 callback = function()
                     const random = math.random(1, 4)
