@@ -21,6 +21,7 @@ schedule(world,
     sharedSystems.players.added,
     sharedSystems.players.removed,
 
+    systems.players.ready,
     systems.players.car,
 
     systems.game

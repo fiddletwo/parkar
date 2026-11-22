@@ -24,6 +24,7 @@ const components = {
 
     -- Player
     Player = world:component<<Player>>(),
+    Ready = world:entity(),
 
     -- Car
     Car = world:entity(),

@@ -1,10 +1,10 @@
-const vide = require "@game/ReplicatedStorage/packages/vide"
-const sources = require "../../sources"
+const Container = require "../../components/container"
 const Padding = require "../../components/padding"
 const colors = require "../../styles/colors"
 const fonts = require "../../styles/fonts"
 const rem = require "../../utils/rem"
-const Container = require "../../components/container"
+const sources = require "../../sources"
+const vide = require "@game/ReplicatedStorage/packages/vide"
 
 const create = vide.create
 
@@ -57,6 +57,17 @@ const function Hud()
                     CornerRadius = UDim.new(1, 0),
                 },
             },
+        },
+        create "TextLabel" {
+            AnchorPoint = Vector2.new(0.5, 0),
+            Size = rem.fromOffset(4, 1),
+            Position = rem.fromUDim2(0.5, 0, 1, -4),
+            BackgroundTransparency = 1,
+            TextColor3 = colors.white,
+            TextXAlignment = Enum.TextXAlignment.Center,
+            FontFace = fonts.rubik.bold,
+            Text = "BOOST",
+            TextSize = rem(1.125),
         },
     }
 end

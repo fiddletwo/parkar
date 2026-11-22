@@ -1,0 +1,11 @@
+event SendReady {
+    From: Client,
+    Type: Reliable,
+    Call: Polling,
+}
+
+event SendPlayerFail {
+    From: Server,
+    Type: Reliable,
+    Call: SingleAsync,
+}

@@ -25,6 +25,9 @@ const inputs = {
     flip = {
         keycodes = { Enum.KeyCode.F },
     },
+    play = {
+        keycodes = { Enum.KeyCode.MouseLeftButton },
+    },
 }
 
 return input.read("GameplayContext", inputs)

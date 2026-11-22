@@ -4,6 +4,7 @@ const Workspace = game:GetService "Workspace"
 const ct = require "@game/ReplicatedStorage/shared/components"
 const jecs = require "@game/ReplicatedStorage/packages/jecs"
 const model = require "@game/ReplicatedStorage/shared/utils/car/model"
+const network = require "../network"
 const planck_runservice = require "@game/ReplicatedStorage/packages/planck-runservice"
 const replicator = require "../replicator"
 const scheduler = require "@game/ReplicatedStorage/shared/ecs/scheduler"
@@ -40,7 +41,7 @@ const function system(world: jecs.World)
     const cars = world:query(ct.Renderable):with(pair(ct.CarOf, Wildcard)):cached()
 
     const countdownTime = 10
-    const roundTime = 2 * 60
+    const roundTime = 5
     const deathZone = map.WorldPivot.Position.Y - 80
 
     local currentRound: jecs.Entity?
@@ -109,8 +110,15 @@ const function system(world: jecs.World)
         end)
     end
 
+    const players = world:query(ct.Player):with(ct.Ready):cached()
+
     return function()
-        if world:each(ct.Player)() == nil then
+        local playersReady = 0
+        for _ in players do
+            playersReady += 1
+        end
+
+        if playersReady == 0 then
             return
         end
 
@@ -162,6 +170,13 @@ const function system(world: jecs.World)
             for id, car in cars do
                 const model = car :: model.Car
                 if model.Hitbox.Position.Y < deathZone then
+                    const playerEntity = world:target(id, ct.CarOf)
+                    if playerEntity then
+                        const player = world:get(playerEntity, ct.Player)
+                        if player then
+                            network.Game.SendPlayerFail.fire(player)
+                        end
+                    end
                     world:delete(id)
                 else
                     carsLeft += 1

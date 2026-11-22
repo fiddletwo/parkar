@@ -163,6 +163,7 @@ local SerdesThread: thread?
 Queue.Reliable[0] = table.create(256)
 Queue.Reliable[1] = CreateQueue()
 Queue.Unreliable[0] = CreateQueue()
+Queue.Reliable[3] = table.create(256)
 function SerdesFunctions.EntityReplication_WriteFUNCTION_DATA_RequestInitialPackets(Value: nil, InvocationIdentifier: number): ()
 	-- Allocate BLOCK: 2 bytes
 	local BLOCK_START = Allocate(2)
@@ -212,6 +213,16 @@ function SerdesFunctions.EntityReplication_ReadEVENT_SendUnreliable(): (buffer, 
 	return Value1, Value2
 end
 
+function SerdesFunctions.Game_WriteEVENT_SendReady(Value: nil): ()
+	-- Allocate BLOCK: 1 bytes
+	local BLOCK_START = Allocate(1)
+	buffer.writeu8(SendBuffer, BLOCK_START + 0, 2)
+end
+
+function SerdesFunctions.Game_ReadEVENT_SendPlayerFail(): (nil)
+	return nil
+end
+
 if not RunService:IsRunning() then
 	local NOOP = function() end
 	local Returns = table.freeze({
@@ -226,6 +237,14 @@ if not RunService:IsRunning() then
 		SendUnreliable = {
 			iter = NOOP,
 			next = NOOP
+		},
+	},
+	Game = {
+		SendReady = {
+			fire = NOOP
+		},
+		SendPlayerFail = {
+			on = NOOP
 		},
 	},
 	})
@@ -283,6 +302,16 @@ Reliable.OnClientEvent:Connect(function(Buffer: buffer, Instances: {Instance})
 			end
 		elseif Index == 1 then
 			Push(Queue.Reliable[1], table.pack(SerdesFunctions.EntityReplication_ReadEVENT_SendReliable()))
+		elseif Index == 3 then
+			local Value: nil = SerdesFunctions.Game_ReadEVENT_SendPlayerFail()
+			if Events.Reliable[3] ~= nil then
+				task.spawn(Events.Reliable[3], Value)
+			else
+				if #Queue.Reliable[3] > 256 then
+					warn("[Blink]: Event queue of \"SendPlayerFail\" exceeded 256, did you forget to implement a listener?")
+				end
+				table.insert(Queue.Reliable[3], {Value} :: {any})
+			end
 		end
 	end
 end)
@@ -379,6 +408,27 @@ local Returns = table.freeze({
 						return index, unpack(arguments, 1, arguments.n)
 					end
 					return 
+				end
+			end
+		},
+	},
+	Game = {
+		SendReady = {
+			fire = function(Value: nil): ()
+				SerdesFunctions.Game_WriteEVENT_SendReady(Value)
+			end
+		},
+		SendPlayerFail = {
+			on = function(Listener: (Value: nil) -> ()): () -> ()
+				Events.Reliable[3] = Listener
+				for Index, Arguments in Queue.Reliable[3] do
+					task.spawn(Listener, table.unpack(Arguments))
+				end
+				Queue.Reliable[3] = {}
+				return function (): ()
+					if Events.Reliable[3] == Listener then
+						Events.Reliable[3] = nil
+					end
 				end
 			end
 		},

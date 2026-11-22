@@ -8,6 +8,7 @@ return {
         boost = source(100),
     },
     game = {
+        showWelcome = source(true),
         countdown = source(0),
         round = source(0),
     },

@@ -162,6 +162,7 @@ local Queue: any = {
 local SerdesEvent = "?"
 local SerdesThread: thread?
 Queue.Reliable[0] = table.create(256)
+Queue.Reliable[2] = CreateQueue()
 function SerdesFunctions.EntityReplication_ReadFUNCTION_DATA_RequestInitialPackets(): (nil)
 	return Value
 end
@@ -206,6 +207,16 @@ function SerdesFunctions.EntityReplication_WriteEVENT_SendUnreliable(Value1: buf
 	table.insert(SendInstances, if Value2 == nil then Null else Value2)
 end
 
+function SerdesFunctions.Game_ReadEVENT_SendReady(): (nil)
+	return nil
+end
+
+function SerdesFunctions.Game_WriteEVENT_SendPlayerFail(Value: nil): ()
+	-- Allocate BLOCK: 1 bytes
+	local BLOCK_START = Allocate(1)
+	buffer.writeu8(SendBuffer, BLOCK_START + 0, 3)
+end
+
 if not RunService:IsRunning() then
 	local NOOP = function() end
 	local Returns = table.freeze({
@@ -220,6 +231,18 @@ if not RunService:IsRunning() then
 			fireExcept = NOOP
 		},
 		SendUnreliable = {
+			fire = NOOP,
+			fireAll = NOOP,
+			fireList = NOOP,
+			fireExcept = NOOP
+		},
+	},
+	Game = {
+		SendReady = {
+			iter = NOOP,
+			next = NOOP
+		},
+		SendPlayerFail = {
 			fire = NOOP,
 			fireAll = NOOP,
 			fireList = NOOP,
@@ -301,6 +324,8 @@ Reliable.OnServerEvent:Connect(function(Player: Player, Buffer: buffer, Instance
 				end
 				table.insert(Queue.Reliable[0], {Player, Value, InvocationIdentifier} :: {any})
 			end
+		elseif Index == 2 then
+			Push(Queue.Reliable[2], table.pack(Player, SerdesFunctions.Game_ReadEVENT_SendReady()))
 		end
 	end
 end)
@@ -435,6 +460,81 @@ local Returns = table.freeze({
 						continue
 					end
 					Unreliable:FireClient(Player, Buffer, SendInstances)
+				end
+			end,
+		},
+	},
+	Game = {
+		SendReady = {
+			iter = function(): () -> (number, Player, nil)
+				local index = 0
+				local queue = Queue.Reliable[2]
+				return function (): (number, Player, nil)
+					index += 1
+					local arguments = Pop(queue)
+					if arguments ~= nil then
+						return index, unpack(arguments, 1, arguments.n)
+					end
+					return 
+				end
+			end,
+			--- @deprecated v0.14.1 -- Use `Iter` instead.
+			next = function(): () -> (number, Player, nil)
+				local index = 0
+				local queue = Queue.Reliable[2]
+				return function (): (number, Player, nil)
+					index += 1
+					local arguments = Pop(queue)
+					if arguments ~= nil then
+						return index, unpack(arguments, 1, arguments.n)
+					end
+					return 
+				end
+			end
+		},
+		SendPlayerFail = {
+			fire = function(Player: Player, Value: nil): ()
+				Load(PlayersMap[Player])
+				SerdesFunctions.Game_WriteEVENT_SendPlayerFail(Value)
+				PlayersMap[Player] = Save()
+			end,
+			fireAll = function(Value: nil): ()
+				Load()
+				SerdesFunctions.Game_WriteEVENT_SendPlayerFail(Value)
+				local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
+				for _, Player in Players:GetPlayers() do
+					Load(PlayersMap[Player])
+					local Position = Allocate(Size)
+					buffer.copy(SendBuffer, Position, Buffer, 0, Size)
+					table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
+					PlayersMap[Player] = Save()
+				end
+			end,
+			fireList = function(List: {Player}, Value: nil): ()
+				Load()
+				SerdesFunctions.Game_WriteEVENT_SendPlayerFail(Value)
+				local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
+				for _, Player in List do
+					Load(PlayersMap[Player])
+					local Position = Allocate(Size)
+					buffer.copy(SendBuffer, Position, Buffer, 0, Size)
+					table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
+					PlayersMap[Player] = Save()
+				end
+			end,
+			fireExcept = function(Except: Player, Value: nil): ()
+				Load()
+				SerdesFunctions.Game_WriteEVENT_SendPlayerFail(Value)
+				local Buffer, Size, Instances = SendBuffer, SendCursor, SendInstances
+				for _, Player in Players:GetPlayers() do
+					if Player == Except then
+						continue
+					end
+					Load(PlayersMap[Player])
+					local Position = Allocate(Size)
+					buffer.copy(SendBuffer, Position, Buffer, 0, Size)
+					table.move(Instances, 1, #Instances, #SendInstances + 1, SendInstances)
+					PlayersMap[Player] = Save()
 				end
 			end,
 		},
