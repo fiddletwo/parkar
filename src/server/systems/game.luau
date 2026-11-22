@@ -41,7 +41,7 @@ const function system(world: jecs.World)
     const cars = world:query(ct.Renderable):with(pair(ct.CarOf, Wildcard)):cached()
 
     const countdownTime = 10
-    const roundTime = 5
+    const roundTime = 2 * 60
     const deathZone = map.WorldPivot.Position.Y - 80
 
     local currentRound: jecs.Entity?
